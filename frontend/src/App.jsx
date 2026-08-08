@@ -9,9 +9,8 @@ import StudentAttendance from "./pages/student/StudentAttendance";
 import StudentResults from "./pages/student/StudentResults";
 import StudentTimetable from "./pages/student/StudentTimetable";
 import StudentSettings from "./pages/student/StudentSettings";
-
-
-
+import FacultyDashboard from "./pages/faculty/FacultyDashboard";
+import FacultyAttendanceQR from "./pages/faculty/FacultyAttendanceQR";
 
 function App() {
   return (
@@ -59,6 +58,14 @@ function App() {
 <Route
   path="/student-settings"
   element={<StudentSettings />}
+/>
+<Route
+  path="/faculty-dashboard"
+  element={<FacultyDashboard />}
+/>
+<Route
+  path="/faculty-attendance-qr"
+  element={<FacultyAttendanceQR />}
 />
       {/* Unknown URL */}
       <Route
