@@ -11,7 +11,7 @@ import StudentTimetable from "./pages/student/StudentTimetable";
 import StudentSettings from "./pages/student/StudentSettings";
 import FacultyDashboard from "./pages/faculty/FacultyDashboard";
 import FacultyAttendanceQR from "./pages/faculty/FacultyAttendanceQR";
-
+import StudentQRScanner from "./pages/student/StudentQRScanner";
 function App() {
   return (
     <Routes>
@@ -66,6 +66,10 @@ function App() {
 <Route
   path="/faculty-attendance-qr"
   element={<FacultyAttendanceQR />}
+/>
+<Route
+  path="/student-scan"
+  element={<StudentQRScanner />}
 />
       {/* Unknown URL */}
       <Route
