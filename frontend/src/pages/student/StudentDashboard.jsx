@@ -17,6 +17,7 @@ import {
   MenuBookOutlined,
   AccessTimeOutlined,
   TrendingUpOutlined,
+  QrCode,
 } from "@mui/icons-material";
 
 import { useNavigate } from "react-router-dom";
@@ -45,6 +46,11 @@ function StudentDashboard() {
       icon: <CalendarMonthOutlined />,
       path: "/student-timetable",
     },
+     {
+  title: "Scan Attendance",
+  icon: <QrCode/>,
+  path: "/student-scan",
+},
     {
       title: "Settings",
       icon: <SettingsOutlined />,

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { QrCode } from "@mui/icons-material";
 import {
   Box,
   Typography,
@@ -34,33 +34,38 @@ function StudentAttendance() {
   const [search, setSearch] = useState("");
   const [month, setMonth] = useState("August 2026");
 
-  const menuItems = [
-    {
-      title: "Dashboard",
-      icon: <DashboardOutlined />,
-      path: "/student-dashboard",
-    },
-    {
-      title: "Attendance",
-      icon: <EventAvailableOutlined />,
-      path: "/student-attendance",
-    },
-    {
-      title: "Results",
-      icon: <AssessmentOutlined />,
-      path: "/student-results",
-    },
-    {
-      title: "Timetable",
-      icon: <CalendarMonthOutlined />,
-      path: "/student-timetable",
-    },
-    {
-      title: "Settings",
-      icon: <SettingsOutlined />,
-      path: "/student-settings",
-    },
-  ];
+   const menuItems = [
+      {
+        title: "Dashboard",
+        icon: <DashboardOutlined />,
+        path: "/student-dashboard",
+      },
+      {
+        title: "Attendance",
+        icon: <EventAvailableOutlined />,
+        path: "/student-attendance",
+      },
+      {
+        title: "Results",
+        icon: <AssessmentOutlined />,
+        path: "/student-results",
+      },
+      {
+        title: "Timetable",
+        icon: <CalendarMonthOutlined />,
+        path: "/student-timetable",
+      },
+       {
+    title: "Scan Attendance",
+    icon: <QrCode/>,
+    path: "/student-scan",
+  },
+      {
+        title: "Settings",
+        icon: <SettingsOutlined />,
+        path: "/student-settings",
+      },
+    ];
 
   const subjects = [
     {
