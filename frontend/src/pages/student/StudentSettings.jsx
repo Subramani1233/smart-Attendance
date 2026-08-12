@@ -1,648 +1,488 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+
 import {
-  HomeOutlined,
-  EventAvailableOutlined,
-  AssessmentOutlined,
-  CalendarMonthOutlined,
-  SettingsOutlined,
+  Box,
+  Typography,
+  Avatar,
+  TextField,
+  Button,
+  Switch,
+  Divider,
+  Paper,
+} from "@mui/material";
+
+import {
+  NotificationsNoneOutlined,
   MenuBookOutlined,
-  QrCode,
+  EditOutlined,
+  SaveOutlined,
 } from "@mui/icons-material";
 
-function StudentSettings() {
-  const navigate = useNavigate();
-
-  const [darkMode, setDarkMode] = useState(
-    localStorage.getItem("darkMode") === "true"
-  );
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", darkMode);
-    localStorage.setItem("darkMode", darkMode);
-  }, [darkMode]);
-
+export default function StudentSettings() {
   const [editing, setEditing] = useState(false);
 
   const [profile, setProfile] = useState({
     name: "Aslin Mercy",
-    phone: "+91 98765 43210",
-  });
-
-  const [savedProfile, setSavedProfile] = useState({
-    name: "Aslin Mercy",
-    phone: "+91 98765 43210",
+    email: "aslinmercy@gmail.com",
+    registerNo: "21BTECH001",
+    department: "Computer Science",
+    year: "3rd Year",
+    phone: "9876543210",
   });
 
   const [notifications, setNotifications] = useState(true);
-  const [showPassword, setShowPassword] = useState(false);
+  const [emailAlerts, setEmailAlerts] = useState(true);
 
-  const [password, setPassword] = useState({
-    current: "",
-    newPassword: "",
-    confirm: "",
-  });
-
-  const handleSaveProfile = () => {
-    setSavedProfile(profile);
-    setEditing(false);
-    alert("Profile updated successfully!");
+  const handleChange = (field, value) => {
+    setProfile((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
-  const handleCancelEdit = () => {
-    setProfile(savedProfile);
+  const handleSave = () => {
     setEditing(false);
   };
-
-  const handlePasswordUpdate = (e) => {
-    e.preventDefault();
-
-    if (!password.current) {
-      alert("Please enter your current password.");
-      return;
-    }
-
-    if (!password.newPassword) {
-      alert("Please enter a new password.");
-      return;
-    }
-
-    if (password.newPassword !== password.confirm) {
-      alert("New password and confirm password do not match.");
-      return;
-    }
-
-    alert("Password updated successfully!");
-
-    setPassword({
-      current: "",
-      newPassword: "",
-      confirm: "",
-    });
-  };
-
-  const menuItems = [
-    {
-      title: "Dashboard",
-      icon: <HomeOutlined />,
-      path: "/student-dashboard",
-    },
-    {
-      title: "Attendance",
-      icon: <EventAvailableOutlined />,
-      path: "/student-attendance",
-    },
-    {
-      title: "Results",
-      icon: <AssessmentOutlined />,
-      path: "/student-results",
-    },
-    {
-      title: "Timetable",
-      icon: <CalendarMonthOutlined />,
-      path: "/student-timetable",
-    },
-    {
-      title: "Subjects",
-      icon: <MenuBookOutlined />,
-      path: "/student-subjects",
-    },
-    {
-      title: "Scan Attendance",
-      icon: <QrCode />,
-      path: "/student-scan",
-    },
-    {
-      title: "Settings",
-      icon: <SettingsOutlined />,
-      path: "/student-settings",
-    },
-  ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a]">
+    <Box
+      sx={{
+        minHeight: "calc(100vh - 82px)",
+        backgroundColor: "#F8FAFC",
+        p: {
+          xs: 2,
+          sm: 3,
+          md: 4,
+        },
+      }}
+    >
+      {/* PAGE TITLE */}
 
-      {/* SIDEBAR */}
-      <aside className="fixed left-0 top-0 hidden h-screen w-60 border-r border-slate-200 bg-white dark:border-slate-700 dark:bg-[#111827] md:block">
+      <Box sx={{ mb: 3 }}>
+        <Typography
+          sx={{
+            fontSize: {
+              xs: 22,
+              md: 26,
+            },
+            fontWeight: 800,
+            color: "#0F172A",
+          }}
+        >
+          Settings
+        </Typography>
 
-        {/* LOGO */}
-        <div className="flex h-20 items-center gap-3 border-b border-slate-100 px-5 dark:border-slate-700">
+        <Typography
+          sx={{
+            fontSize: 13,
+            color: "#94A3B8",
+            mt: 0.5,
+          }}
+        >
+          Manage your profile and preferences
+        </Typography>
+      </Box>
 
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-lg text-white">
-            🎓
-          </div>
+      {/* ========================= */}
+      {/* PROFILE INFORMATION */}
+      {/* ========================= */}
 
-          <div>
-            <p className="text-sm font-bold text-slate-900 dark:text-white">
-              College
-            </p>
+      <Paper
+        elevation={0}
+        sx={{
+          border: "1px solid #E5E7EB",
+          borderRadius: "16px",
+          p: {
+            xs: 2,
+            sm: 3,
+          },
+          mb: 3,
+          background: "#FFFFFF",
+        }}
+      >
+        {/* TITLE */}
 
-            <p className="text-[9px] text-slate-400">
-              SMART ATTENDANCE
-            </p>
-          </div>
-
-        </div>
-
-        {/* MENU */}
-        <div className="px-3 py-6">
-
-          {menuItems.map((item) => {
-            const active = item.path === "/student-settings";
-
-            return (
-              <button
-                key={item.title}
-                onClick={() => navigate(item.path)}
-                className={`mb-2 flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm transition ${
-                  active
-                    ? "bg-gradient-to-r from-blue-600 to-violet-600 font-semibold text-white shadow-md"
-                    : "text-slate-500 hover:bg-blue-50 hover:text-blue-600 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-blue-400"
-                }`}
-              >
-                <span className="flex w-5 items-center justify-center">
-                  {item.icon}
-                </span>
-
-                {item.title}
-              </button>
-            );
-          })}
-
-        </div>
-      </aside>
-
-      {/* MAIN */}
-      <main className="md:ml-60">
-
-        {/* HEADER */}
-        <header className="flex h-20 items-center justify-between border-b border-slate-200 bg-white px-5 dark:border-slate-700 dark:bg-[#111827] sm:px-8">
-
-          <div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white">
-              Settings
-            </h1>
-
-            <p className="mt-1 text-xs text-slate-400">
-              Manage your account and preferences
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-
-            <button
-              className="rounded-full bg-slate-100 p-2 text-sm transition hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
-              aria-label="Notifications"
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: {
+              xs: "flex-start",
+              sm: "center",
+            },
+            justifyContent: "space-between",
+            gap: 2,
+            mb: 3,
+            flexDirection: {
+              xs: "column",
+              sm: "row",
+            },
+          }}
+        >
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 18,
+                fontWeight: 800,
+                color: "#0F172A",
+              }}
             >
-              🔔
-            </button>
+              Profile Information
+            </Typography>
 
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-violet-600 text-xs font-bold text-white">
-              AM
-            </div>
+            <Typography
+              sx={{
+                fontSize: 13,
+                color: "#94A3B8",
+                mt: 0.5,
+              }}
+            >
+              Update your personal information
+            </Typography>
+          </Box>
 
-            <div className="hidden sm:block">
-              <p className="text-xs font-semibold text-slate-800 dark:text-white">
-                {profile.name}
-              </p>
+          {!editing ? (
+            <Button
+              variant="outlined"
+              startIcon={<EditOutlined />}
+              onClick={() => setEditing(true)}
+              sx={{
+                borderRadius: "9px",
+                textTransform: "none",
+                fontWeight: 700,
+                borderColor: "#CBD5E1",
+                color: "#2563EB",
+                "&:hover": {
+                  borderColor: "#2563EB",
+                  background: "#EFF6FF",
+                },
+              }}
+            >
+              Edit Profile
+            </Button>
+          ) : (
+            <Button
+              variant="contained"
+              startIcon={<SaveOutlined />}
+              onClick={handleSave}
+              sx={{
+                borderRadius: "9px",
+                textTransform: "none",
+                fontWeight: 700,
+                background:
+                  "linear-gradient(135deg,#2563EB,#6366F1)",
+                boxShadow:
+                  "0 6px 14px rgba(37,99,235,0.18)",
+                "&:hover": {
+                  background:
+                    "linear-gradient(135deg,#1D4ED8,#4F46E5)",
+                },
+              }}
+            >
+              Save Changes
+            </Button>
+          )}
+        </Box>
 
-              <p className="text-[10px] text-slate-400">
-                Student
-              </p>
-            </div>
+        {/* PROFILE HEADER */}
 
-          </div>
-        </header>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            mb: 3,
+          }}
+        >
+          <Avatar
+            sx={{
+              width: 76,
+              height: 76,
+              background:
+                "linear-gradient(135deg,#2563EB,#7C3AED)",
+              fontSize: 24,
+              fontWeight: 700,
+            }}
+          >
+            AM
+          </Avatar>
 
-        {/* CONTENT */}
-        <section className="space-y-6 p-4 sm:p-6 lg:p-8">
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 18,
+                fontWeight: 800,
+                color: "#0F172A",
+              }}
+            >
+              {profile.name}
+            </Typography>
 
-          {/* PROFILE */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#111827]">
+            <Typography
+              sx={{
+                fontSize: 13,
+                color: "#64748B",
+                mt: 0.3,
+              }}
+            >
+              {profile.department} • {profile.year}
+            </Typography>
+          </Box>
+        </Box>
 
-            <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <Divider sx={{ mb: 3 }} />
 
-              <div className="flex items-center gap-4">
+        {/* FORM */}
 
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-violet-600 text-xl font-bold text-white">
-                  AM
-                </div>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "1fr",
+              md: "1fr 1fr",
+            },
+            gap: 2.5,
+          }}
+        >
+          <TextField
+            label="Full Name"
+            value={profile.name}
+            disabled={!editing}
+            onChange={(e) =>
+              handleChange("name", e.target.value)
+            }
+            fullWidth
+          />
 
-                <div>
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                    Profile Information
-                  </h2>
+          <TextField
+            label="Email"
+            value={profile.email}
+            disabled={!editing}
+            onChange={(e) =>
+              handleChange("email", e.target.value)
+            }
+            fullWidth
+          />
 
-                  <p className="text-xs text-slate-400">
-                    Manage your personal information
-                  </p>
-                </div>
+          <TextField
+            label="Register Number"
+            value={profile.registerNo}
+            disabled
+            fullWidth
+          />
 
-              </div>
+          <TextField
+            label="Department"
+            value={profile.department}
+            disabled={!editing}
+            onChange={(e) =>
+              handleChange(
+                "department",
+                e.target.value
+              )
+            }
+            fullWidth
+          />
 
-              <button
-                onClick={() => {
-                  if (editing) {
-                    handleCancelEdit();
-                  } else {
-                    setEditing(true);
-                  }
+          <TextField
+            label="Year"
+            value={profile.year}
+            disabled={!editing}
+            onChange={(e) =>
+              handleChange("year", e.target.value)
+            }
+            fullWidth
+          />
+
+          <TextField
+            label="Phone Number"
+            value={profile.phone}
+            disabled={!editing}
+            onChange={(e) =>
+              handleChange("phone", e.target.value)
+            }
+            fullWidth
+          />
+        </Box>
+      </Paper>
+
+      {/* ========================= */}
+      {/* PREFERENCES */}
+      {/* ========================= */}
+
+      <Paper
+        elevation={0}
+        sx={{
+          border: "1px solid #E5E7EB",
+          borderRadius: "16px",
+          p: {
+            xs: 2,
+            sm: 3,
+          },
+          background: "#FFFFFF",
+        }}
+      >
+        <Typography
+          sx={{
+            fontSize: 18,
+            fontWeight: 800,
+            color: "#0F172A",
+          }}
+        >
+          Preferences
+        </Typography>
+
+        <Typography
+          sx={{
+            fontSize: 13,
+            color: "#94A3B8",
+            mt: 0.5,
+            mb: 2,
+          }}
+        >
+          Manage your notification preferences
+        </Typography>
+
+        <Divider />
+
+        {/* PUSH NOTIFICATIONS */}
+
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 2,
+            py: 2,
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.5,
+            }}
+          >
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: "10px",
+                background: "#EFF6FF",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <NotificationsNoneOutlined
+                sx={{
+                  color: "#2563EB",
+                  fontSize: 21,
                 }}
-                className="rounded-xl border border-blue-200 px-4 py-2 text-xs font-semibold text-blue-600 transition hover:bg-blue-50 dark:border-blue-900 dark:hover:bg-slate-800"
+              />
+            </Box>
+
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: "#1E293B",
+                }}
               >
-                {editing ? "Cancel" : "✏️ Edit Profile"}
-              </button>
+                Push Notifications
+              </Typography>
 
-            </div>
+              <Typography
+                sx={{
+                  fontSize: 12,
+                  color: "#94A3B8",
+                  mt: 0.3,
+                }}
+              >
+                Receive attendance and academic
+                notifications
+              </Typography>
+            </Box>
+          </Box>
 
-            <div className="grid gap-5 md:grid-cols-2">
+          <Switch
+            checked={notifications}
+            onChange={(e) =>
+              setNotifications(e.target.checked)
+            }
+          />
+        </Box>
 
-              {/* NAME */}
-              <div>
-                <label className="text-[10px] font-semibold text-slate-400">
-                  FULL NAME
-                </label>
+        <Divider />
 
-                <input
-                  value={profile.name}
-                  disabled={!editing}
-                  onChange={(e) =>
-                    setProfile({
-                      ...profile,
-                      name: e.target.value,
-                    })
-                  }
-                  className={`mt-2 w-full rounded-xl border px-4 py-3 text-xs outline-none transition ${
-                    editing
-                      ? "border-blue-300 bg-white focus:border-blue-500 dark:border-blue-600 dark:bg-slate-800"
-                      : "border-slate-200 bg-slate-50 dark:border-slate-600 dark:bg-slate-800"
-                  } dark:text-white`}
-                />
-              </div>
+        {/* EMAIL ALERTS */}
 
-              {/* ROLL NUMBER */}
-              <div>
-                <label className="text-[10px] font-semibold text-slate-400">
-                  ROLL NUMBER
-                </label>
-
-                <input
-                  value="CS23A001"
-                  disabled
-                  readOnly
-                  className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs outline-none dark:border-slate-600 dark:bg-slate-800 dark:text-white"
-                />
-
-                <p className="mt-1 text-[9px] text-slate-400">
-                  Roll number can only be changed by faculty/admin.
-                </p>
-              </div>
-
-              {/* EMAIL */}
-              <div>
-                <label className="text-[10px] font-semibold text-slate-400">
-                  COLLEGE EMAIL
-                </label>
-
-                <input
-                  value="aslin@college.edu"
-                  disabled
-                  readOnly
-                  className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs outline-none dark:border-slate-600 dark:bg-slate-800 dark:text-white"
-                />
-
-                <p className="mt-1 text-[9px] text-slate-400">
-                  College email is managed by the institution.
-                </p>
-              </div>
-
-              {/* PHONE */}
-              <div>
-                <label className="text-[10px] font-semibold text-slate-400">
-                  PHONE NUMBER
-                </label>
-
-                <input
-                  value={profile.phone}
-                  disabled={!editing}
-                  onChange={(e) =>
-                    setProfile({
-                      ...profile,
-                      phone: e.target.value,
-                    })
-                  }
-                  className={`mt-2 w-full rounded-xl border px-4 py-3 text-xs outline-none transition ${
-                    editing
-                      ? "border-blue-300 bg-white focus:border-blue-500 dark:border-blue-600 dark:bg-slate-800"
-                      : "border-slate-200 bg-slate-50 dark:border-slate-600 dark:bg-slate-800"
-                  } dark:text-white`}
-                />
-              </div>
-
-            </div>
-
-            {editing && (
-              <div className="mt-6 flex gap-3">
-
-                <button
-                  onClick={handleSaveProfile}
-                  className="rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 px-5 py-3 text-xs font-semibold text-white shadow-md transition hover:shadow-lg"
-                >
-                  💾 Save Changes
-                </button>
-
-                <button
-                  onClick={handleCancelEdit}
-                  className="rounded-xl border border-slate-200 px-5 py-3 text-xs font-semibold text-slate-500 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
-                >
-                  Cancel
-                </button>
-
-              </div>
-            )}
-
-          </div>
-
-          {/* ACADEMIC DETAILS */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#111827]">
-
-            <div className="mb-5">
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white">
-                🎓 Academic Details
-              </h2>
-
-              <p className="mt-1 text-[10px] text-slate-400">
-                Your current academic information
-              </p>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-3">
-
-              <div className="rounded-xl bg-blue-50 p-4 dark:bg-slate-800">
-                <p className="text-[9px] font-semibold text-slate-400">
-                  DEPARTMENT
-                </p>
-
-                <p className="mt-2 text-xs font-bold text-blue-700 dark:text-blue-400">
-                  Computer Science
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-violet-50 p-4 dark:bg-slate-800">
-                <p className="text-[9px] font-semibold text-slate-400">
-                  YEAR
-                </p>
-
-                <p className="mt-2 text-xs font-bold text-violet-700 dark:text-violet-400">
-                  3rd Year
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-green-50 p-4 dark:bg-slate-800">
-                <p className="text-[9px] font-semibold text-slate-400">
-                  SEMESTER
-                </p>
-
-                <p className="mt-2 text-xs font-bold text-green-700 dark:text-green-400">
-                  Semester 5
-                </p>
-              </div>
-
-            </div>
-
-            <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 dark:border-slate-700 dark:bg-slate-800">
-              <p className="text-[10px] text-slate-500 dark:text-slate-400">
-                ℹ️ Department, year and semester details are maintained
-                by faculty/admin and cannot be edited by students.
-              </p>
-            </div>
-
-          </div>
-
-          {/* PREFERENCES */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#111827]">
-
-            <div className="mb-5">
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white">
-                ⚙️ Preferences
-              </h2>
-
-              <p className="mt-1 text-[10px] text-slate-400">
-                Customize your student portal
-              </p>
-            </div>
-
-            <div className="divide-y divide-slate-100 dark:divide-slate-700">
-
-              {/* DARK MODE */}
-              <div className="flex items-center justify-between gap-4 py-5">
-
-                <div className="flex items-center gap-4">
-
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800">
-                    {darkMode ? "☀️" : "🌙"}
-                  </div>
-
-                  <div>
-                    <p className="text-xs font-semibold text-slate-800 dark:text-white">
-                      Dark Mode
-                    </p>
-
-                    <p className="mt-1 text-[10px] text-slate-400">
-                      Switch between light and dark theme
-                    </p>
-                  </div>
-
-                </div>
-
-                <button
-                  onClick={() => setDarkMode(!darkMode)}
-                  aria-label="Toggle dark mode"
-                  className={`relative h-7 w-12 shrink-0 rounded-full transition ${
-                    darkMode ? "bg-blue-600" : "bg-slate-300"
-                  }`}
-                >
-                  <span
-                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-all ${
-                      darkMode ? "left-6" : "left-1"
-                    }`}
-                  />
-                </button>
-
-              </div>
-
-              {/* NOTIFICATIONS */}
-              <div className="flex items-center justify-between gap-4 py-5">
-
-                <div className="flex items-center gap-4">
-
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 dark:bg-slate-800">
-                    🔔
-                  </div>
-
-                  <div>
-                    <p className="text-xs font-semibold text-slate-800 dark:text-white">
-                      Notifications
-                    </p>
-
-                    <p className="mt-1 text-[10px] text-slate-400">
-                      Receive attendance and academic updates
-                    </p>
-                  </div>
-
-                </div>
-
-                <button
-                  onClick={() => setNotifications(!notifications)}
-                  aria-label="Toggle notifications"
-                  className={`relative h-7 w-12 shrink-0 rounded-full transition ${
-                    notifications ? "bg-blue-600" : "bg-slate-300"
-                  }`}
-                >
-                  <span
-                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-all ${
-                      notifications ? "left-6" : "left-1"
-                    }`}
-                  />
-                </button>
-
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* CHANGE PASSWORD */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#111827]">
-
-            <div className="mb-5">
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white">
-                🔒 Change Password
-              </h2>
-
-              <p className="mt-1 text-[10px] text-slate-400">
-                Keep your student account secure
-              </p>
-            </div>
-
-            <form
-              onSubmit={handlePasswordUpdate}
-              className="max-w-xl space-y-4"
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 2,
+            py: 2,
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.5,
+            }}
+          >
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: "10px",
+                background: "#F5F3FF",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
+              <MenuBookOutlined
+                sx={{
+                  color: "#7C3AED",
+                  fontSize: 21,
+                }}
+              />
+            </Box>
 
-              <div>
-                <label className="text-[10px] font-semibold text-slate-400">
-                  CURRENT PASSWORD
-                </label>
-
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password.current}
-                  onChange={(e) =>
-                    setPassword({
-                      ...password,
-                      current: e.target.value,
-                    })
-                  }
-                  placeholder="Enter current password"
-                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs outline-none transition focus:border-blue-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label className="text-[10px] font-semibold text-slate-400">
-                  NEW PASSWORD
-                </label>
-
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password.newPassword}
-                  onChange={(e) =>
-                    setPassword({
-                      ...password,
-                      newPassword: e.target.value,
-                    })
-                  }
-                  placeholder="Enter new password"
-                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs outline-none transition focus:border-blue-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label className="text-[10px] font-semibold text-slate-400">
-                  CONFIRM PASSWORD
-                </label>
-
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password.confirm}
-                  onChange={(e) =>
-                    setPassword({
-                      ...password,
-                      confirm: e.target.value,
-                    })
-                  }
-                  placeholder="Confirm new password"
-                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs outline-none transition focus:border-blue-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
-                />
-              </div>
-
-              <label className="flex cursor-pointer items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400">
-
-                <input
-                  type="checkbox"
-                  checked={showPassword}
-                  onChange={(e) =>
-                    setShowPassword(e.target.checked)
-                  }
-                  className="h-3.5 w-3.5"
-                />
-
-                Show password
-
-              </label>
-
-              <button
-                type="submit"
-                className="rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 px-5 py-3 text-xs font-semibold text-white shadow-md transition hover:shadow-lg"
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: "#1E293B",
+                }}
               >
-                Update Password
-              </button>
+                Email Alerts
+              </Typography>
 
-            </form>
-
-          </div>
-
-          {/* LOGOUT */}
-          <div className="rounded-2xl border border-red-100 bg-white p-6 shadow-sm dark:border-red-900/40 dark:bg-[#111827]">
-
-            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-
-              <div>
-                <h2 className="text-sm font-bold text-red-600">
-                  Logout
-                </h2>
-
-                <p className="mt-1 text-[10px] text-slate-400">
-                  Sign out from your student account
-                </p>
-              </div>
-
-              <button
-                onClick={() => navigate("/")}
-                className="rounded-xl border border-red-200 px-5 py-2.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-950"
+              <Typography
+                sx={{
+                  fontSize: 12,
+                  color: "#94A3B8",
+                  mt: 0.3,
+                }}
               >
-                Logout
-              </button>
+                Receive important updates through email
+              </Typography>
+            </Box>
+          </Box>
 
-            </div>
-
-          </div>
-
-        </section>
-      </main>
-    </div>
+          <Switch
+            checked={emailAlerts}
+            onChange={(e) =>
+              setEmailAlerts(e.target.checked)
+            }
+          />
+        </Box>
+      </Paper>
+    </Box>
   );
 }
-
-export default StudentSettings;

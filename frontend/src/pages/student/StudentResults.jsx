@@ -1,696 +1,1122 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useMemo, useState } from "react";
 
 import {
   Box,
   Typography,
-  Avatar,
-  IconButton,
-  TextField,
-  Button,
-  Switch,
-  Divider,
   Paper,
+  Avatar,
+  LinearProgress,
+  TextField,
+  InputAdornment,
+  Chip,
+  IconButton,
 } from "@mui/material";
 
 import {
-  DashboardOutlined,
-  EventAvailableOutlined,
-  AssessmentOutlined,
-  CalendarMonthOutlined,
-  SettingsOutlined,
+  Search,
+  TrendingUpOutlined,
+  EmojiEventsOutlined,
   NotificationsNoneOutlined,
-  MenuBookOutlined,
-  QrCode,
-  LogoutOutlined,
-  EditOutlined,
-  SaveOutlined,
+  SchoolOutlined,
+  CheckCircleOutlined,
 } from "@mui/icons-material";
 
-const menuItems = [
-  {
-    label: "Dashboard",
-    icon: <DashboardOutlined />,
-    path: "/student-dashboard",
-  },
-  {
-    label: "Attendance",
-    icon: <EventAvailableOutlined />,
-    path: "/student-attendance",
-  },
-  {
-    label: "Scan Attendance",
-    icon: <QrCode />,
-    path: "/student/scan-attendance",
-  },
-  {
-    label: "Results",
-    icon: <AssessmentOutlined />,
-    path: "/student/results",
-  },
-  {
-    label: "Timetable",
-    icon: <CalendarMonthOutlined />,
-    path: "/student/timetable",
-  },
-  {
-    label: "Settings",
-    icon: <SettingsOutlined />,
-    path: "/student/settings",
-  },
-];
+export default function StudentResults() {
+  const [search, setSearch] = useState("");
 
-export default function StudentSettings() {
-  const navigate = useNavigate();
+  // =========================
+  // SUBJECT RESULTS
+  // =========================
 
-  const [editing, setEditing] = useState(false);
+  const subjects = [
+    {
+      code: "MA301",
+      name: "Mathematics",
+      internal: 28,
+      external: 62,
+      total: 90,
+      max: 100,
+      grade: "A+",
+      gradePoint: 9,
+      result: "Pass",
+    },
+    {
+      code: "CS302",
+      name: "Computer Science",
+      internal: 26,
+      external: 58,
+      total: 84,
+      max: 100,
+      grade: "A",
+      gradePoint: 8,
+      result: "Pass",
+    },
+    {
+      code: "CS303",
+      name: "Database Management",
+      internal: 24,
+      external: 54,
+      total: 78,
+      max: 100,
+      grade: "B+",
+      gradePoint: 7,
+      result: "Pass",
+    },
+    {
+      code: "CS304",
+      name: "Web Technology",
+      internal: 27,
+      external: 60,
+      total: 87,
+      max: 100,
+      grade: "A+",
+      gradePoint: 9,
+      result: "Pass",
+    },
+    {
+      code: "CS305",
+      name: "Software Engineering",
+      internal: 25,
+      external: 56,
+      total: 81,
+      max: 100,
+      grade: "A",
+      gradePoint: 8,
+      result: "Pass",
+    },
+    {
+      code: "CS306",
+      name: "Computer Networks",
+      internal: 22,
+      external: 49,
+      total: 71,
+      max: 100,
+      grade: "B+",
+      gradePoint: 7,
+      result: "Pass",
+    },
+  ];
 
-  const [profile, setProfile] = useState({
-    name: "Aslin Mercy",
-    email: "aslinmercy@gmail.com",
-    registerNo: "21BTECH001",
-    department: "Computer Science",
-    year: "3rd Year",
-    phone: "9876543210",
-  });
+  // =========================
+  // FILTER
+  // =========================
 
-  const [notifications, setNotifications] = useState(true);
-  const [emailAlerts, setEmailAlerts] = useState(true);
+  const filteredSubjects = useMemo(() => {
+    return subjects.filter(
+      (subject) =>
+        subject.name
+          .toLowerCase()
+          .includes(search.toLowerCase()) ||
+        subject.code
+          .toLowerCase()
+          .includes(search.toLowerCase())
+    );
+  }, [search]);
 
-  const handleChange = (field, value) => {
-    setProfile((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  // =========================
+  // CALCULATIONS
+  // =========================
 
-  const handleSave = () => {
-    setEditing(false);
+  const totalMarks = subjects.reduce(
+    (sum, subject) => sum + subject.total,
+    0
+  );
+
+  const maxMarks = subjects.reduce(
+    (sum, subject) => sum + subject.max,
+    0
+  );
+
+  const percentage = Math.round(
+    (totalMarks / maxMarks) * 100
+  );
+
+  const averageGradePoint =
+    subjects.reduce(
+      (sum, subject) => sum + subject.gradePoint,
+      0
+    ) / subjects.length;
+
+  const cgpa = averageGradePoint.toFixed(1);
+
+  // =========================
+  // GRADE COLOR
+  // =========================
+
+  const getGradeColor = (grade) => {
+    if (grade === "A+") {
+      return {
+        background: "#DCFCE7",
+        color: "#16A34A",
+      };
+    }
+
+    if (grade === "A") {
+      return {
+        background: "#DBEAFE",
+        color: "#2563EB",
+      };
+    }
+
+    if (grade === "B+") {
+      return {
+        background: "#FEF3C7",
+        color: "#D97706",
+      };
+    }
+
+    return {
+      background: "#F1F5F9",
+      color: "#64748B",
+    };
   };
 
   return (
     <Box
       sx={{
-        minHeight: "100vh",
-        backgroundColor: "#f8fafc",
-        display: "flex",
+        minHeight: "calc(100vh - 82px)",
+        background: "#F8FAFC",
+        p: {
+          xs: 2,
+          sm: 3,
+          md: 4,
+        },
       }}
     >
-      {/* SIDEBAR */}
+         {/* ================================================= */}
+            {/* HEADER */}
+            {/* ================================================= */}
+      
+            <Box
+              sx={{
+                height: 82,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                px: {
+                  xs: 2,
+                  md: 4,
+                },
+              }}
+            >
+              <Box>
+                <Typography
+                  sx={{
+                    fontSize: {
+                      xs: "18px",
+                      md: "22px",
+                    },
+                    fontWeight: 700,
+                  }}
+                >
+                 Academic Results
+                </Typography>
+      
+                <Typography
+                  sx={{
+                    display: {
+                      xs: "none",
+                      sm: "block",
+                    },
+                    fontSize: "11px",
+                    color: "#94A3B8",
+                  }}
+                >
+                 View your semester examination results
+                </Typography>
+              </Box>
+      
+              {/* Search */}
+      
+              <Box
+                sx={{
+                  display: {
+                    xs: "none",
+                    md: "flex",
+                  },
+                  width: 240,
+                }}
+              >
+                <TextField
+                  fullWidth
+                  size="small"
+                  placeholder="Search subject..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      height: 40,
+                      borderRadius: "9px",
+                      background: "#F8FAFC",
+      
+                      "& fieldset": {
+                        borderColor: "#E5E7EB",
+                      },
+                    },
+                  }}
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Search
+                            sx={{
+                              fontSize: 18,
+                              color: "#94A3B8",
+                            }}
+                          />
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+              </Box>
+      
+              {/* Profile */}
+      
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <IconButton
+                  sx={{
+                    color: "#64748B",
+                    background: "#F8FAFC",
+                  }}
+                >
+                  <NotificationsNoneOutlined sx={{ fontSize: 21 }} />
+                </IconButton>
+      
+                <Avatar
+                  sx={{
+                    width: 38,
+                    height: 38,
+                    background:
+                      "linear-gradient(135deg, #2563EB, #6366F1)",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                  }}
+                >
+                  AM
+                </Avatar>
+      
+                <Box
+                  sx={{
+                    display: {
+                      xs: "none",
+                      sm: "block",
+                    },
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: "12px",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Aslin Mercy
+                  </Typography>
+      
+                  <Typography
+                    sx={{
+                      fontSize: "10px",
+                      color: "#94A3B8",
+                    }}
+                  >
+                    Student
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+      {/* ========================= */}
+      {/* RESULT SUMMARY */}
+      {/* ========================= */}
+
       <Box
         sx={{
-          width: "258px",
-          height: "100vh",
-          position: "fixed",
-          left: 0,
-          top: 0,
-          background: "#ffffff",
-          borderRight: "1px solid #e5e7eb",
-          display: "flex",
-          flexDirection: "column",
-          zIndex: 1000,
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "repeat(2, 1fr)",
+            lg: "repeat(4, 1fr)",
+          },
+          gap: 2.5,
+          mb: 3,
         }}
       >
-        {/* Logo */}
-        <Box
+        {/* Percentage */}
+
+        <Paper
+          elevation={0}
           sx={{
-            height: "82px",
-            display: "flex",
-            alignItems: "center",
-            gap: 1.5,
-            px: 3,
-            borderBottom: "1px solid #f1f5f9",
+            border: "1px solid #E5E7EB",
+            borderRadius: "14px",
+            p: 2.5,
+            background: "#FFFFFF",
           }}
         >
           <Box
             sx={{
-              width: 42,
-              height: 42,
-              borderRadius: "12px",
-              background:
-                "linear-gradient(135deg, #2563eb, #4f46e5)",
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#fff",
-              fontWeight: 800,
-              fontSize: 20,
+              justifyContent: "space-between",
+              alignItems: "flex-start",
             }}
           >
-            SA
-          </Box>
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 11,
+                  color: "#94A3B8",
+                  mb: 1,
+                }}
+              >
+                Overall Percentage
+              </Typography>
 
-          <Box>
-            <Typography
+              <Typography
+                sx={{
+                  fontSize: 28,
+                  fontWeight: 800,
+                  color: "#0F172A",
+                }}
+              >
+                {percentage}%
+              </Typography>
+
+              <Typography
+                sx={{
+                  fontSize: 10,
+                  color: "#22C55E",
+                  mt: 0.5,
+                }}
+              >
+                Excellent performance
+              </Typography>
+            </Box>
+
+            <Box
               sx={{
-                fontSize: 17,
-                fontWeight: 800,
-                color: "#111827",
+                width: 46,
+                height: 46,
+                borderRadius: "12px",
+                background: "#EEF2FF",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              Smart Attendance
-            </Typography>
+              <TrendingUpOutlined
+                sx={{
+                  color: "#4F46E5",
+                  fontSize: 23,
+                }}
+              />
+            </Box>
+          </Box>
+        </Paper>
 
-            <Typography
+        {/* CGPA */}
+
+        <Paper
+          elevation={0}
+          sx={{
+            border: "1px solid #E5E7EB",
+            borderRadius: "14px",
+            p: 2.5,
+            background: "#FFFFFF",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+            }}
+          >
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 11,
+                  color: "#94A3B8",
+                  mb: 1,
+                }}
+              >
+                Current CGPA
+              </Typography>
+
+              <Typography
+                sx={{
+                  fontSize: 28,
+                  fontWeight: 800,
+                  color: "#0F172A",
+                }}
+              >
+                {cgpa}
+              </Typography>
+
+              <Typography
+                sx={{
+                  fontSize: 10,
+                  color: "#64748B",
+                  mt: 0.5,
+                }}
+              >
+                Out of 10.0
+              </Typography>
+            </Box>
+
+            <Box
               sx={{
-                fontSize: 11,
-                color: "#94a3b8",
+                width: 46,
+                height: 46,
+                borderRadius: "12px",
+                background: "#F5F3FF",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              Student Portal
-            </Typography>
+              <EmojiEventsOutlined
+                sx={{
+                  color: "#7C3AED",
+                  fontSize: 23,
+                }}
+              />
+            </Box>
           </Box>
-        </Box>
+        </Paper>
 
-        {/* Menu */}
-        <Box sx={{ px: 2, py: 3, flex: 1 }}>
+        {/* Subjects */}
+
+        <Paper
+          elevation={0}
+          sx={{
+            border: "1px solid #E5E7EB",
+            borderRadius: "14px",
+            p: 2.5,
+            background: "#FFFFFF",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+            }}
+          >
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 11,
+                  color: "#94A3B8",
+                  mb: 1,
+                }}
+              >
+                Subjects
+              </Typography>
+
+              <Typography
+                sx={{
+                  fontSize: 28,
+                  fontWeight: 800,
+                  color: "#0F172A",
+                }}
+              >
+                {subjects.length}
+              </Typography>
+
+              <Typography
+                sx={{
+                  fontSize: 10,
+                  color: "#64748B",
+                  mt: 0.5,
+                }}
+              >
+                This semester
+              </Typography>
+            </Box>
+
+            <Box
+              sx={{
+                width: 46,
+                height: 46,
+                borderRadius: "12px",
+                background: "#EFF6FF",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <SchoolOutlined
+                sx={{
+                  color: "#2563EB",
+                  fontSize: 23,
+                }}
+              />
+            </Box>
+          </Box>
+        </Paper>
+
+        {/* Result */}
+
+        <Paper
+          elevation={0}
+          sx={{
+            border: "1px solid #E5E7EB",
+            borderRadius: "14px",
+            p: 2.5,
+            background: "#FFFFFF",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+            }}
+          >
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 11,
+                  color: "#94A3B8",
+                  mb: 1,
+                }}
+              >
+                Semester Result
+              </Typography>
+
+              <Typography
+                sx={{
+                  fontSize: 25,
+                  fontWeight: 800,
+                  color: "#16A34A",
+                }}
+              >
+                PASS
+              </Typography>
+
+              <Typography
+                sx={{
+                  fontSize: 10,
+                  color: "#64748B",
+                  mt: 0.5,
+                }}
+              >
+                All subjects cleared
+              </Typography>
+            </Box>
+
+            <Box
+              sx={{
+                width: 46,
+                height: 46,
+                borderRadius: "12px",
+                background: "#DCFCE7",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <CheckCircleOutlined
+                sx={{
+                  color: "#16A34A",
+                  fontSize: 23,
+                }}
+              />
+            </Box>
+          </Box>
+        </Paper>
+      </Box>
+
+      {/* ========================= */}
+      {/* PERFORMANCE CARD */}
+      {/* ========================= */}
+
+      <Paper
+        elevation={0}
+        sx={{
+          border: "1px solid #E5E7EB",
+          borderRadius: "14px",
+          p: {
+            xs: 2,
+            md: 3,
+          },
+          mb: 3,
+          background: "#FFFFFF",
+        }}
+      >
+        <Typography
+          sx={{
+            fontSize: 16,
+            fontWeight: 800,
+            color: "#0F172A",
+          }}
+        >
+          Academic Performance
+        </Typography>
+
+        <Typography
+          sx={{
+            fontSize: 11,
+            color: "#94A3B8",
+            mt: 0.5,
+            mb: 2.5,
+          }}
+        >
+          Overall marks achieved in the current semester
+        </Typography>
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            mb: 1,
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 11,
+              fontWeight: 600,
+              color: "#475569",
+            }}
+          >
+            Total Marks
+          </Typography>
+
           <Typography
             sx={{
               fontSize: 11,
               fontWeight: 700,
-              color: "#94a3b8",
-              px: 1.5,
-              mb: 1.5,
-              textTransform: "uppercase",
-              letterSpacing: 0.8,
+              color: "#4F46E5",
             }}
           >
-            Main Menu
+            {totalMarks} / {maxMarks}
           </Typography>
-
-          {menuItems.map((item) => {
-            const active = item.label === "Settings";
-
-            return (
-              <Box
-                key={item.label}
-                onClick={() => navigate(item.path)}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1.5,
-                  px: 1.5,
-                  py: 1.4,
-                  mb: 0.7,
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                  backgroundColor: active
-                    ? "#eff6ff"
-                    : "transparent",
-                  color: active
-                    ? "#2563eb"
-                    : "#64748b",
-                  "&:hover": {
-                    backgroundColor: "#f1f5f9",
-                    color: "#2563eb",
-                  },
-                }}
-              >
-                {React.cloneElement(item.icon, {
-                  sx: {
-                    fontSize: 21,
-                    color: active
-                      ? "#2563eb"
-                      : "#64748b",
-                  },
-                })}
-
-                <Typography
-                  sx={{
-                    fontSize: 14,
-                    fontWeight: active ? 700 : 500,
-                  }}
-                >
-                  {item.label}
-                </Typography>
-              </Box>
-            );
-          })}
         </Box>
 
-        {/* Bottom Profile */}
-        <Box
+        <LinearProgress
+          variant="determinate"
+          value={percentage}
           sx={{
-            borderTop: "1px solid #f1f5f9",
-            p: 2,
+            height: 9,
+            borderRadius: 10,
+            background: "#EEF2FF",
+
+            "& .MuiLinearProgress-bar": {
+              borderRadius: 10,
+              background:
+                "linear-gradient(90deg,#2563EB,#6366F1)",
+            },
           }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1.3,
-            }}
-          >
-            <Avatar
-              sx={{
-                width: 38,
-                height: 38,
-                background:
-                  "linear-gradient(135deg, #2563eb, #7c3aed)",
-                fontSize: 14,
-                fontWeight: 700,
-              }}
-            >
-              AM
-            </Avatar>
+        />
+      </Paper>
 
-            <Box sx={{ flex: 1 }}>
-              <Typography
-                sx={{
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: "#1e293b",
-                }}
-              >
-                Aslin Mercy
-              </Typography>
+      {/* ========================= */}
+      {/* SUBJECT RESULTS */}
+      {/* ========================= */}
 
-              <Typography
-                sx={{
-                  fontSize: 11,
-                  color: "#94a3b8",
-                }}
-              >
-                Student
-              </Typography>
-            </Box>
-
-            <IconButton size="small">
-              <LogoutOutlined
-                sx={{
-                  fontSize: 19,
-                  color: "#64748b",
-                }}
-              />
-            </IconButton>
-          </Box>
-        </Box>
-      </Box>
-
-      {/* MAIN CONTENT */}
-      <Box
+      <Paper
+        elevation={0}
         sx={{
-          marginLeft: "258px",
-          width: "calc(100% - 258px)",
-          minHeight: "100vh",
+          border: "1px solid #E5E7EB",
+          borderRadius: "14px",
+          overflow: "hidden",
+          background: "#FFFFFF",
         }}
       >
         {/* Header */}
+
         <Box
           sx={{
-            height: 82,
-            background: "#fff",
-            borderBottom: "1px solid #e5e7eb",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            px: 4,
+            p: {
+              xs: 2,
+              md: 3,
+            },
           }}
         >
-          <Box>
-            <Typography
-              sx={{
-                fontSize: 24,
-                fontWeight: 800,
-                color: "#0f172a",
-              }}
-            >
-              Settings
-            </Typography>
-
-            <Typography
-              sx={{
-                fontSize: 13,
-                color: "#94a3b8",
-                mt: 0.3,
-              }}
-            >
-              Manage your profile and preferences
-            </Typography>
-          </Box>
-
-          <Box
+          <Typography
             sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
+              fontSize: 16,
+              fontWeight: 800,
+              color: "#0F172A",
             }}
           >
-            <IconButton>
-              <NotificationsNoneOutlined
-                sx={{ color: "#64748b" }}
-              />
-            </IconButton>
+            Subject-wise Results
+          </Typography>
 
-            <Avatar
+          <Typography
+            sx={{
+              fontSize: 11,
+              color: "#94A3B8",
+              mt: 0.5,
+            }}
+          >
+            Detailed marks and grades for each subject
+          </Typography>
+        </Box>
+
+        {/* Desktop Table Header */}
+
+        <Box
+          sx={{
+            display: {
+              xs: "none",
+              md: "grid",
+            },
+
+            gridTemplateColumns:
+              "1.2fr 1.4fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr",
+
+            px: 3,
+            py: 1.5,
+
+            background: "#F8FAFC",
+
+            borderTop: "1px solid #F1F5F9",
+            borderBottom: "1px solid #F1F5F9",
+          }}
+        >
+          {[
+            "Subject",
+            "Name",
+            "Internal",
+            "External",
+            "Total",
+            "Grade",
+            "Result",
+          ].map((item) => (
+            <Typography
+              key={item}
               sx={{
-                width: 38,
-                height: 38,
-                background:
-                  "linear-gradient(135deg, #2563eb, #7c3aed)",
-                fontSize: 13,
+                fontSize: 10,
+                color: "#94A3B8",
                 fontWeight: 700,
               }}
             >
-              AM
-            </Avatar>
-          </Box>
+              {item}
+            </Typography>
+          ))}
         </Box>
 
-        {/* PAGE CONTENT */}
-        <Box
+        {/* RESULT ROWS */}
+
+        {filteredSubjects.map((subject, index) => {
+          const gradeStyle = getGradeColor(
+            subject.grade
+          );
+
+          return (
+            <Box key={subject.code}>
+              {/* Desktop */}
+
+              <Box
+                sx={{
+                  display: {
+                    xs: "none",
+                    md: "grid",
+                  },
+
+                  gridTemplateColumns:
+                    "1.2fr 1.4fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr",
+
+                  px: 3,
+                  py: 2,
+
+                  alignItems: "center",
+
+                  borderBottom:
+                    index !==
+                    filteredSubjects.length - 1
+                      ? "1px solid #F1F5F9"
+                      : "none",
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: "#2563EB",
+                  }}
+                >
+                  {subject.code}
+                </Typography>
+
+                <Typography
+                  sx={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: "#1E293B",
+                  }}
+                >
+                  {subject.name}
+                </Typography>
+
+                <Typography
+                  sx={{
+                    fontSize: 11,
+                    color: "#64748B",
+                  }}
+                >
+                  {subject.internal}
+                </Typography>
+
+                <Typography
+                  sx={{
+                    fontSize: 11,
+                    color: "#64748B",
+                  }}
+                >
+                  {subject.external}
+                </Typography>
+
+                <Typography
+                  sx={{
+                    fontSize: 12,
+                    fontWeight: 800,
+                    color: "#0F172A",
+                  }}
+                >
+                  {subject.total}
+                </Typography>
+
+                <Box>
+                  <Chip
+                    label={subject.grade}
+                    size="small"
+                    sx={{
+                      height: 25,
+                      fontSize: 10,
+                      fontWeight: 800,
+                      background:
+                        gradeStyle.background,
+                      color: gradeStyle.color,
+                    }}
+                  />
+                </Box>
+
+                <Typography
+                  sx={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: "#16A34A",
+                  }}
+                >
+                  {subject.result}
+                </Typography>
+              </Box>
+
+              {/* Mobile Card */}
+
+              <Box
+                sx={{
+                  display: {
+                    xs: "block",
+                    md: "none",
+                  },
+
+                  p: 2,
+
+                  borderBottom:
+                    index !==
+                    filteredSubjects.length - 1
+                      ? "1px solid #F1F5F9"
+                      : "none",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    mb: 1.5,
+                  }}
+                >
+                  <Box>
+                    <Typography
+                      sx={{
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: "#2563EB",
+                      }}
+                    >
+                      {subject.code}
+                    </Typography>
+
+                    <Typography
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: "#1E293B",
+                        mt: 0.3,
+                      }}
+                    >
+                      {subject.name}
+                    </Typography>
+                  </Box>
+
+                  <Chip
+                    label={subject.grade}
+                    size="small"
+                    sx={{
+                      height: 26,
+                      fontSize: 10,
+                      fontWeight: 800,
+                      background:
+                        gradeStyle.background,
+                      color: gradeStyle.color,
+                    }}
+                  />
+                </Box>
+
+                <Box
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns:
+                      "repeat(3,1fr)",
+                    gap: 1,
+                  }}
+                >
+                  <Box>
+                    <Typography
+                      sx={{
+                        fontSize: 9,
+                        color: "#94A3B8",
+                      }}
+                    >
+                      Internal
+                    </Typography>
+
+                    <Typography
+                      sx={{
+                        fontSize: 13,
+                        fontWeight: 700,
+                      }}
+                    >
+                      {subject.internal}
+                    </Typography>
+                  </Box>
+
+                  <Box>
+                    <Typography
+                      sx={{
+                        fontSize: 9,
+                        color: "#94A3B8",
+                      }}
+                    >
+                      External
+                    </Typography>
+
+                    <Typography
+                      sx={{
+                        fontSize: 13,
+                        fontWeight: 700,
+                      }}
+                    >
+                      {subject.external}
+                    </Typography>
+                  </Box>
+
+                  <Box>
+                    <Typography
+                      sx={{
+                        fontSize: 9,
+                        color: "#94A3B8",
+                      }}
+                    >
+                      Total
+                    </Typography>
+
+                    <Typography
+                      sx={{
+                        fontSize: 13,
+                        fontWeight: 800,
+                      }}
+                    >
+                      {subject.total}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mt: 1.5,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: 10,
+                      color: "#64748B",
+                    }}
+                  >
+                    Grade Point:{" "}
+                    <b>{subject.gradePoint}</b>
+                  </Typography>
+
+                  <Typography
+                    sx={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      color: "#16A34A",
+                    }}
+                  >
+                    {subject.result}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          );
+        })}
+
+        {/* NO RESULT */}
+
+        {filteredSubjects.length === 0 && (
+          <Box
+            sx={{
+              py: 6,
+              textAlign: "center",
+            }}
+          >
+            <Typography
+              sx={{
+                fontSize: 14,
+                color: "#94A3B8",
+              }}
+            >
+              No subjects found
+            </Typography>
+          </Box>
+        )}
+      </Paper>
+
+      {/* ========================= */}
+      {/* FOOTER NOTE */}
+      {/* ========================= */}
+
+      <Box
+        sx={{
+          mt: 2.5,
+          p: 2,
+          borderRadius: "10px",
+          background: "#EFF6FF",
+          border: "1px solid #DBEAFE",
+        }}
+      >
+        <Typography
           sx={{
-            p: 4,
-            maxWidth: 1100,
+            fontSize: 11,
+            color: "#475569",
+            lineHeight: 1.6,
           }}
         >
-          {/* PROFILE */}
-          <Paper
-            elevation={0}
-            sx={{
-              border: "1px solid #e5e7eb",
-              borderRadius: "16px",
-              p: 3,
-              mb: 3,
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                mb: 3,
-              }}
-            >
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: 18,
-                    fontWeight: 800,
-                    color: "#0f172a",
-                  }}
-                >
-                  Profile Information
-                </Typography>
-
-                <Typography
-                  sx={{
-                    fontSize: 13,
-                    color: "#94a3b8",
-                    mt: 0.5,
-                  }}
-                >
-                  Update your personal information
-                </Typography>
-              </Box>
-
-              {!editing ? (
-                <Button
-                  variant="outlined"
-                  startIcon={<EditOutlined />}
-                  onClick={() => setEditing(true)}
-                  sx={{
-                    borderRadius: "9px",
-                    textTransform: "none",
-                    fontWeight: 700,
-                  }}
-                >
-                  Edit Profile
-                </Button>
-              ) : (
-                <Button
-                  variant="contained"
-                  startIcon={<SaveOutlined />}
-                  onClick={handleSave}
-                  sx={{
-                    borderRadius: "9px",
-                    textTransform: "none",
-                    fontWeight: 700,
-                    background: "#2563eb",
-                    "&:hover": {
-                      background: "#1d4ed8",
-                    },
-                  }}
-                >
-                  Save Changes
-                </Button>
-              )}
-            </Box>
-
-            {/* Avatar */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-                mb: 3,
-              }}
-            >
-              <Avatar
-                sx={{
-                  width: 76,
-                  height: 76,
-                  background:
-                    "linear-gradient(135deg, #2563eb, #7c3aed)",
-                  fontSize: 24,
-                  fontWeight: 700,
-                }}
-              >
-                AM
-              </Avatar>
-
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: 18,
-                    fontWeight: 800,
-                  }}
-                >
-                  {profile.name}
-                </Typography>
-
-                <Typography
-                  sx={{
-                    fontSize: 13,
-                    color: "#64748b",
-                  }}
-                >
-                  {profile.department} • {profile.year}
-                </Typography>
-              </Box>
-            </Box>
-
-            <Divider sx={{ mb: 3 }} />
-
-            {/* FORM */}
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  md: "1fr 1fr",
-                },
-                gap: 2.5,
-              }}
-            >
-              <TextField
-                label="Full Name"
-                value={profile.name}
-                disabled={!editing}
-                onChange={(e) =>
-                  handleChange("name", e.target.value)
-                }
-                fullWidth
-              />
-
-              <TextField
-                label="Email"
-                value={profile.email}
-                disabled={!editing}
-                onChange={(e) =>
-                  handleChange("email", e.target.value)
-                }
-                fullWidth
-              />
-
-              <TextField
-                label="Register Number"
-                value={profile.registerNo}
-                disabled
-                fullWidth
-              />
-
-              <TextField
-                label="Department"
-                value={profile.department}
-                disabled={!editing}
-                onChange={(e) =>
-                  handleChange(
-                    "department",
-                    e.target.value
-                  )
-                }
-                fullWidth
-              />
-
-              <TextField
-                label="Year"
-                value={profile.year}
-                disabled={!editing}
-                onChange={(e) =>
-                  handleChange("year", e.target.value)
-                }
-                fullWidth
-              />
-
-              <TextField
-                label="Phone Number"
-                value={profile.phone}
-                disabled={!editing}
-                onChange={(e) =>
-                  handleChange("phone", e.target.value)
-                }
-                fullWidth
-              />
-            </Box>
-          </Paper>
-
-          {/* PREFERENCES */}
-          <Paper
-            elevation={0}
-            sx={{
-              border: "1px solid #e5e7eb",
-              borderRadius: "16px",
-              p: 3,
-            }}
-          >
-            <Typography
-              sx={{
-                fontSize: 18,
-                fontWeight: 800,
-                color: "#0f172a",
-                mb: 0.5,
-              }}
-            >
-              Preferences
-            </Typography>
-
-            <Typography
-              sx={{
-                fontSize: 13,
-                color: "#94a3b8",
-                mb: 2,
-              }}
-            >
-              Manage your notification preferences
-            </Typography>
-
-            <Divider sx={{ mb: 1 }} />
-
-            {/* PUSH NOTIFICATIONS */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                py: 2,
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1.5,
-                }}
-              >
-                <NotificationsNoneOutlined
-                  sx={{ color: "#2563eb" }}
-                />
-
-                <Box>
-                  <Typography
-                    sx={{
-                      fontSize: 14,
-                      fontWeight: 700,
-                    }}
-                  >
-                    Push Notifications
-                  </Typography>
-
-                  <Typography
-                    sx={{
-                      fontSize: 12,
-                      color: "#94a3b8",
-                    }}
-                  >
-                    Receive attendance and academic
-                    notifications
-                  </Typography>
-                </Box>
-              </Box>
-
-              <Switch
-                checked={notifications}
-                onChange={(e) =>
-                  setNotifications(e.target.checked)
-                }
-              />
-            </Box>
-
-            <Divider />
-
-            {/* EMAIL ALERTS */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                py: 2,
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1.5,
-                }}
-              >
-                <MenuBookOutlined
-                  sx={{ color: "#7c3aed" }}
-                />
-
-                <Box>
-                  <Typography
-                    sx={{
-                      fontSize: 14,
-                      fontWeight: 700,
-                    }}
-                  >
-                    Email Alerts
-                  </Typography>
-
-                  <Typography
-                    sx={{
-                      fontSize: 12,
-                      color: "#94a3b8",
-                    }}
-                  >
-                    Receive important updates through
-                    email
-                  </Typography>
-                </Box>
-              </Box>
-
-              <Switch
-                checked={emailAlerts}
-                onChange={(e) =>
-                  setEmailAlerts(e.target.checked)
-                }
-              />
-            </Box>
-          </Paper>
-        </Box>
+          <b>Note:</b> Results shown above are sample
+          academic records. Final marks and grades will
+          be updated by the faculty or administration.
+        </Typography>
       </Box>
     </Box>
   );

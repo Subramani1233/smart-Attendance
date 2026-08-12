@@ -6,13 +6,13 @@ import {
   Button,
   Chip,
 } from "@mui/material";
+
 import {
   CalendarMonthOutlined,
   EventOutlined,
   AssignmentOutlined,
   GroupsOutlined,
 } from "@mui/icons-material";
-import StudentSidebar from "../../components/StudentSidebar";
 
 const timetable = [
   {
@@ -44,6 +44,7 @@ const timetable = [
       },
     ],
   },
+
   {
     day: "Tuesday",
     classes: [
@@ -73,6 +74,7 @@ const timetable = [
       },
     ],
   },
+
   {
     day: "Wednesday",
     classes: [
@@ -102,6 +104,7 @@ const timetable = [
       },
     ],
   },
+
   {
     day: "Thursday",
     classes: [
@@ -131,6 +134,7 @@ const timetable = [
       },
     ],
   },
+
   {
     day: "Friday",
     classes: [
@@ -166,419 +170,394 @@ function StudentTimetable() {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        minHeight: "100%",
         background: "#F8FAFF",
         color: "#111827",
+        p: {
+          xs: 2,
+          md: 4,
+        },
       }}
     >
-      {/* ================= SIDEBAR ================= */}
-      <StudentSidebar />
+      {/* ================= HEADER ================= */}
 
-      {/* ================= MAIN CONTENT ================= */}
       <Box
         sx={{
-          marginLeft: "258px",
-          minHeight: "100vh",
+          mb: 3,
         }}
       >
-        {/* ================= HEADER ================= */}
+        <Typography
+          sx={{
+            fontSize: {
+              xs: "22px",
+              md: "26px",
+            },
+            fontWeight: 700,
+            color: "#111827",
+          }}
+        >
+          Timetable
+        </Typography>
+
+        <Typography
+          sx={{
+            fontSize: "13px",
+            color: "#94A3B8",
+            mt: 0.5,
+          }}
+        >
+          Academic schedule & examinations
+        </Typography>
+      </Box>
+
+      {/* ================= COURSE BANNER ================= */}
+
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: "18px",
+          p: {
+            xs: 2.5,
+            md: 3,
+          },
+          mb: 3,
+          color: "#FFFFFF",
+          background:
+            "linear-gradient(135deg,#2563EB 0%,#7C2DFF 100%)",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <Typography
+          sx={{
+            fontSize: "12px",
+            letterSpacing: "0.5px",
+            opacity: 0.9,
+          }}
+        >
+          ACADEMIC TIMETABLE
+        </Typography>
+
+        <Typography
+          sx={{
+            fontSize: {
+              xs: "18px",
+              md: "21px",
+            },
+            fontWeight: 700,
+            mt: 1,
+          }}
+        >
+          B.Tech Computer Science
+        </Typography>
+
+        <Typography
+          sx={{
+            fontSize: "13px",
+            mt: 0.7,
+            opacity: 0.9,
+          }}
+        >
+          3rd Year • Semester 5 • Section A
+        </Typography>
+
+        <CalendarMonthOutlined
+          sx={{
+            position: "absolute",
+            right: {
+              xs: 18,
+              md: 28,
+            },
+            top: "50%",
+            transform: "translateY(-50%)",
+            fontSize: {
+              xs: 45,
+              md: 54,
+            },
+            opacity: 0.2,
+          }}
+        />
+      </Paper>
+
+      {/* ================= TABS ================= */}
+
+      <Paper
+        elevation={0}
+        sx={{
+          border: "1px solid #E2E8F0",
+          borderRadius: "16px",
+          p: 0.6,
+          mb: 3,
+          display: "flex",
+          gap: 0.5,
+          background: "#FFFFFF",
+          overflowX: "auto",
+        }}
+      >
+        <Button
+          startIcon={<CalendarMonthOutlined />}
+          sx={{
+            flex: 1,
+            minWidth: 180,
+            justifyContent: "center",
+            borderRadius: "11px",
+            py: 1.2,
+            textTransform: "none",
+            fontWeight: 700,
+            color: "#FFFFFF",
+            background:
+              "linear-gradient(135deg,#2563EB,#7C2DFF)",
+            "&:hover": {
+              background:
+                "linear-gradient(135deg,#2563EB,#7C2DFF)",
+            },
+          }}
+        >
+          Weekly Timetable
+        </Button>
+
+        <Button
+          startIcon={<AssignmentOutlined />}
+          sx={{
+            flex: 1,
+            minWidth: 160,
+            textTransform: "none",
+            color: "#64748B",
+            fontWeight: 600,
+          }}
+        >
+          Internal Exam
+        </Button>
+
+        <Button
+          startIcon={<EventOutlined />}
+          sx={{
+            flex: 1,
+            minWidth: 160,
+            textTransform: "none",
+            color: "#64748B",
+            fontWeight: 600,
+          }}
+        >
+          Weekly Exam
+        </Button>
+
+        <Button
+          startIcon={<GroupsOutlined />}
+          sx={{
+            flex: 1,
+            minWidth: 140,
+            textTransform: "none",
+            color: "#64748B",
+            fontWeight: 600,
+          }}
+        >
+          Events
+        </Button>
+      </Paper>
+
+      {/* ================= WEEKLY TIMETABLE ================= */}
+
+      <Paper
+        elevation={0}
+        sx={{
+          border: "1px solid #E2E8F0",
+          borderRadius: "18px",
+          p: {
+            xs: 1.5,
+            md: 2.5,
+          },
+          background: "#FFFFFF",
+        }}
+      >
+        {/* TITLE */}
+
         <Box
           sx={{
-            height: "88px",
-            background: "#FFFFFF",
-            borderBottom: "1px solid #E5E7EB",
             display: "flex",
-            alignItems: "center",
+            alignItems: {
+              xs: "flex-start",
+              sm: "center",
+            },
             justifyContent: "space-between",
-            px: 4,
-            position: "sticky",
-            top: 0,
-            zIndex: 10,
+            mb: 2.5,
+            gap: 2,
+            flexDirection: {
+              xs: "column",
+              sm: "row",
+            },
           }}
         >
           <Box>
             <Typography
               sx={{
-                fontSize: "26px",
+                fontSize: "18px",
                 fontWeight: 700,
-                color: "#111827",
               }}
             >
-              Timetable
+              Weekly Class Timetable
             </Typography>
 
             <Typography
               sx={{
-                fontSize: "14px",
+                fontSize: "13px",
                 color: "#94A3B8",
-                mt: 0.3,
+                mt: 0.5,
               }}
             >
-              Academic schedule & examinations
+              Monday to Friday • Regular academic schedule
             </Typography>
           </Box>
 
-          <Box
+          <Chip
+            label="View Only"
             sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 2,
+              background: "#ECFDF5",
+              color: "#16A34A",
+              fontWeight: 600,
+              fontSize: "12px",
             }}
-          >
-            <Box
-              sx={{
-                width: 44,
-                height: 44,
-                borderRadius: "50%",
-                background: "#F1F5F9",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "20px",
-              }}
-            >
-              🔔
-            </Box>
-
-            <Box
-              sx={{
-                width: 40,
-                height: 40,
-                borderRadius: "50%",
-                background: "linear-gradient(135deg,#2563EB,#7C3AED)",
-                color: "#FFFFFF",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 700,
-              }}
-            >
-              AM
-            </Box>
-
-            <Box>
-              <Typography
-                sx={{
-                  fontSize: "14px",
-                  fontWeight: 700,
-                }}
-              >
-                Aslin Mercy
-              </Typography>
-
-              <Typography
-                sx={{
-                  fontSize: "12px",
-                  color: "#94A3B8",
-                }}
-              >
-                Student
-              </Typography>
-            </Box>
-          </Box>
+          />
         </Box>
 
-        {/* ================= PAGE CONTENT ================= */}
-        <Box
-          sx={{
-            p: 3,
-            maxWidth: "1400px",
-          }}
-        >
-          {/* ================= COURSE BANNER ================= */}
-          <Paper
-            elevation={0}
+        {/* ================= DAYS ================= */}
+
+        {timetable.map((day) => (
+          <Box
+            key={day.day}
             sx={{
-              borderRadius: "18px",
-              p: 3,
               mb: 3,
-              color: "#FFFFFF",
-              background:
-                "linear-gradient(135deg,#2563EB 0%,#7C2DFF 100%)",
-              position: "relative",
+              border: "1px solid #E5E7EB",
+              borderRadius: "14px",
               overflow: "hidden",
             }}
           >
-            <Typography
-              sx={{
-                fontSize: "13px",
-                letterSpacing: "0.5px",
-                opacity: 0.9,
-              }}
-            >
-              ACADEMIC TIMETABLE
-            </Typography>
+            {/* DAY HEADER */}
 
-            <Typography
-              sx={{
-                fontSize: "21px",
-                fontWeight: 700,
-                mt: 1,
-              }}
-            >
-              B.Tech Computer Science
-            </Typography>
-
-            <Typography
-              sx={{
-                fontSize: "14px",
-                mt: 0.7,
-                opacity: 0.9,
-              }}
-            >
-              3rd Year • Semester 5 • Section A
-            </Typography>
-
-            <CalendarMonthOutlined
-              sx={{
-                position: "absolute",
-                right: 28,
-                top: "50%",
-                transform: "translateY(-50%)",
-                fontSize: 54,
-                opacity: 0.2,
-              }}
-            />
-          </Paper>
-
-          {/* ================= TABS ================= */}
-          <Paper
-            elevation={0}
-            sx={{
-              border: "1px solid #E2E8F0",
-              borderRadius: "16px",
-              p: 0.6,
-              mb: 3,
-              display: "flex",
-              gap: 0.5,
-              background: "#FFFFFF",
-            }}
-          >
-            <Button
-              startIcon={<CalendarMonthOutlined />}
-              sx={{
-                flex: 1,
-                justifyContent: "center",
-                borderRadius: "11px",
-                py: 1.2,
-                textTransform: "none",
-                fontWeight: 700,
-                color: "#FFFFFF",
-                background:
-                  "linear-gradient(135deg,#2563EB,#7C2DFF)",
-                "&:hover": {
-                  background:
-                    "linear-gradient(135deg,#2563EB,#7C2DFF)",
-                },
-              }}
-            >
-              Weekly Timetable
-            </Button>
-
-            <Button
-              startIcon={<AssignmentOutlined />}
-              sx={{
-                flex: 1,
-                textTransform: "none",
-                color: "#64748B",
-                fontWeight: 600,
-              }}
-            >
-              Internal Exam
-            </Button>
-
-            <Button
-              startIcon={<EventOutlined />}
-              sx={{
-                flex: 1,
-                textTransform: "none",
-                color: "#64748B",
-                fontWeight: 600,
-              }}
-            >
-              Weekly Exam
-            </Button>
-
-            <Button
-              startIcon={<GroupsOutlined />}
-              sx={{
-                flex: 1,
-                textTransform: "none",
-                color: "#64748B",
-                fontWeight: 600,
-              }}
-            >
-              Events
-            </Button>
-          </Paper>
-
-          {/* ================= WEEKLY TIMETABLE ================= */}
-          <Paper
-            elevation={0}
-            sx={{
-              border: "1px solid #E2E8F0",
-              borderRadius: "18px",
-              p: 2.5,
-              background: "#FFFFFF",
-            }}
-          >
             <Box
               sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                mb: 2.5,
+                px: 2,
+                py: 1.5,
+                background:
+                  "linear-gradient(90deg,#2563EB,#7C2DFF)",
+                color: "#FFFFFF",
               }}
             >
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: "18px",
-                    fontWeight: 700,
-                  }}
-                >
-                  Weekly Class Timetable
-                </Typography>
-
-                <Typography
-                  sx={{
-                    fontSize: "13px",
-                    color: "#94A3B8",
-                    mt: 0.5,
-                  }}
-                >
-                  Monday to Friday • Regular academic schedule
-                </Typography>
-              </Box>
-
-              <Chip
-                label="View Only"
+              <Typography
                 sx={{
-                  background: "#ECFDF5",
-                  color: "#16A34A",
-                  fontWeight: 600,
-                  fontSize: "12px",
-                }}
-              />
-            </Box>
-
-            {/* ================= DAYS ================= */}
-            {timetable.map((day) => (
-              <Box
-                key={day.day}
-                sx={{
-                  mb: 3,
-                  border: "1px solid #E5E7EB",
-                  borderRadius: "14px",
-                  overflow: "hidden",
+                  fontSize: "15px",
+                  fontWeight: 700,
                 }}
               >
-                {/* DAY HEADER */}
+                {day.day}
+              </Typography>
+            </Box>
+
+            {/* CLASSES */}
+
+            {day.classes.map((item) => (
+              <Box
+                key={`${day.day}-${item.time}-${item.code}`}
+                sx={{
+                  display: "flex",
+                  alignItems: {
+                    xs: "flex-start",
+                    md: "center",
+                  },
+                  minHeight: "92px",
+                  borderBottom: "1px solid #EEF2F7",
+                  "&:last-child": {
+                    borderBottom: "none",
+                  },
+                  flexDirection: {
+                    xs: "column",
+                    md: "row",
+                  },
+                }}
+              >
+                {/* TIME */}
+
                 <Box
                   sx={{
+                    width: {
+                      xs: "100%",
+                      md: "130px",
+                    },
                     px: 2,
-                    py: 1.5,
-                    background:
-                      "linear-gradient(90deg,#2563EB,#7C2DFF)",
-                    color: "#FFFFFF",
+                    pt: {
+                      xs: 1.5,
+                      md: 0,
+                    },
+                    flexShrink: 0,
                   }}
                 >
                   <Typography
                     sx={{
-                      fontSize: "15px",
-                      fontWeight: 700,
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "#64748B",
                     }}
                   >
-                    {day.day}
+                    {item.time}
                   </Typography>
                 </Box>
 
-                {/* CLASSES */}
-                {day.classes.map((item) => (
+                {/* SUBJECT */}
+
+                <Box
+                  sx={{
+                    flex: 1,
+                    p: 1.5,
+                    width: {
+                      xs: "100%",
+                      md: "auto",
+                    },
+                  }}
+                >
                   <Box
-                    key={`${day.day}-${item.time}-${item.code}`}
                     sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      minHeight: "92px",
-                      borderBottom: "1px solid #EEF2F7",
-                      "&:last-child": {
-                        borderBottom: "none",
-                      },
+                      background: "#EFF6FF",
+                      borderRadius: "11px",
+                      px: 2,
+                      py: 1.4,
                     }}
                   >
-                    {/* TIME */}
-                    <Box
+                    <Typography
                       sx={{
-                        width: "130px",
-                        px: 2,
-                        flexShrink: 0,
+                        fontSize: "14px",
+                        fontWeight: 700,
+                        color: "#2563EB",
                       }}
                     >
-                      <Typography
-                        sx={{
-                          fontSize: "12px",
-                          fontWeight: 600,
-                          color: "#64748B",
-                        }}
-                      >
-                        {item.time}
-                      </Typography>
-                    </Box>
+                      {item.code}
+                    </Typography>
 
-                    {/* SUBJECT */}
-                    <Box
+                    <Typography
                       sx={{
-                        flex: 1,
-                        p: 1.5,
+                        fontSize: "13px",
+                        color: "#475569",
+                        mt: 0.3,
                       }}
                     >
-                      <Box
-                        sx={{
-                          background: "#EFF6FF",
-                          borderRadius: "11px",
-                          px: 2,
-                          py: 1.4,
-                        }}
-                      >
-                        <Typography
-                          sx={{
-                            fontSize: "14px",
-                            fontWeight: 700,
-                            color: "#2563EB",
-                          }}
-                        >
-                          {item.code}
-                        </Typography>
+                      {item.subject}
+                    </Typography>
 
-                        <Typography
-                          sx={{
-                            fontSize: "13px",
-                            color: "#475569",
-                            mt: 0.3,
-                          }}
-                        >
-                          {item.subject}
-                        </Typography>
-
-                        <Typography
-                          sx={{
-                            fontSize: "11px",
-                            color: "#94A3B8",
-                            mt: 0.5,
-                          }}
-                        >
-                          📍 {item.room}
-                        </Typography>
-                      </Box>
-                    </Box>
+                    <Typography
+                      sx={{
+                        fontSize: "11px",
+                        color: "#94A3B8",
+                        mt: 0.5,
+                      }}
+                    >
+                      📍 {item.room}
+                    </Typography>
                   </Box>
-                ))}
+                </Box>
               </Box>
             ))}
-          </Paper>
-        </Box>
-      </Box>
+          </Box>
+        ))}
+      </Paper>
     </Box>
   );
 }

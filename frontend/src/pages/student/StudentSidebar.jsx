@@ -1,5 +1,4 @@
 import { useLocation, useNavigate } from "react-router-dom";
-
 import {
   HomeOutlined,
   EventAvailableOutlined,
@@ -103,7 +102,6 @@ function StudentSidebar() {
         })}
 
       </div>
-
     </aside>
   );
 }

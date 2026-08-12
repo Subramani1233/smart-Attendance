@@ -1,24 +1,33 @@
 import React, { useEffect, useRef, useState } from "react";
-import StudentSidebar from "../../components/StudentSidebar";
-import {
-  DashboardOutlined,
-  EventAvailableOutlined,
-  AssessmentOutlined,
-  CalendarMonthOutlined,
-  QrCode,
-  SettingsOutlined,
-  Search,
-  NotificationsNoneOutlined,
-  CameraAltOutlined,
-  CheckCircle,
-  Replay,
-  LocationOnOutlined,
-  ArrowBack,
-} from "@mui/icons-material";
-
 import { useNavigate } from "react-router-dom";
 
-const StudentScanAttendance = () => {
+import StudentSidebar from "../../components/StudentSidebar";
+
+import {
+  Box,
+  Typography,
+  Paper,
+  Button,
+  Avatar,
+  IconButton,
+  Divider,
+  Chip,
+} from "@mui/material";
+
+import {
+  QrCode,
+  NotificationsNoneOutlined,
+  CameraAltOutlined,
+  Replay,
+  LocationOnOutlined,
+  CheckCircle,
+  ArrowBack,
+  RefreshOutlined,
+  VerifiedOutlined,
+  SchoolOutlined,
+} from "@mui/icons-material";
+
+export default function StudentScanAttendance() {
   const navigate = useNavigate();
 
   const videoRef = useRef(null);
@@ -28,45 +37,14 @@ const StudentScanAttendance = () => {
   const [session, setSession] = useState(null);
   const [photo, setPhoto] = useState(null);
   const [location, setLocation] = useState(null);
+
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const [cameraLoading, setCameraLoading] = useState(true);
+  const [cameraLoading, setCameraLoading] = useState(false);
 
-  // ---------------- MENU ----------------
-
-   const menuItems = [
-    {
-      title: "Dashboard",
-      icon: <DashboardOutlined />,
-      path: "/student-dashboard",
-    },
-    {
-      title: "Attendance",
-      icon: <EventAvailableOutlined />,
-      path: "/student-attendance",
-    },
-    {
-      title: "Results",
-      icon: <AssessmentOutlined />,
-      path: "/student-results",
-    },
-    {
-      title: "Timetable",
-      icon: <CalendarMonthOutlined />,
-      path: "/student-timetable",
-    },
-     {
-  title: "Scan Attendance",
-  icon: <QrCode/>,
-  path: "/student-scan",
-},
-    {
-      title: "Settings",
-      icon: <SettingsOutlined />,
-      path: "/student-settings",
-    },
-  ];
-  // ---------------- CHECK FACULTY QR SESSION ----------------
+  // =====================================================
+  // CHECK FACULTY QR SESSION
+  // =====================================================
 
   useEffect(() => {
     const checkSession = () => {
@@ -91,7 +69,9 @@ const StudentScanAttendance = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // ---------------- START CAMERA ----------------
+  // =====================================================
+  // CAMERA + LOCATION
+  // =====================================================
 
   useEffect(() => {
     if (session && !photo && !submitted) {
@@ -104,15 +84,27 @@ const StudentScanAttendance = () => {
     };
   }, [session]);
 
+  // =====================================================
+  // START CAMERA
+  // =====================================================
+
   const startCamera = async () => {
     try {
       setError("");
       setCameraLoading(true);
 
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setError("Camera is not supported by this browser.");
+        setCameraLoading(false);
+        return;
+      }
+
       const stream =
         await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: "user",
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
           },
           audio: false,
         });
@@ -125,35 +117,41 @@ const StudentScanAttendance = () => {
 
       setCameraLoading(false);
     } catch (err) {
-      console.error(err);
+      console.error("Camera Error:", err);
 
       setCameraLoading(false);
 
       setError(
-        "Camera permission is required. Please allow camera access."
+        "Camera permission is required. Please allow camera access and try again."
       );
     }
   };
 
-  // ---------------- STOP CAMERA ----------------
+  // =====================================================
+  // STOP CAMERA
+  // =====================================================
 
   const stopCamera = () => {
     if (streamRef.current) {
-      streamRef.current
-        .getTracks()
-        .forEach((track) => track.stop());
+      streamRef.current.getTracks().forEach((track) => {
+        track.stop();
+      });
 
       streamRef.current = null;
     }
   };
 
-  // ---------------- LOCATION ----------------
+  // =====================================================
+  // LOCATION
+  // =====================================================
 
   const getLocation = () => {
     setError("");
 
     if (!navigator.geolocation) {
-      setError("Geolocation is not supported by this browser.");
+      setError(
+        "Geolocation is not supported by this browser."
+      );
       return;
     }
 
@@ -166,8 +164,9 @@ const StudentScanAttendance = () => {
 
         setError("");
       },
+
       (err) => {
-        console.log(err);
+        console.log("Location Error:", err);
 
         setLocation(null);
 
@@ -175,6 +174,7 @@ const StudentScanAttendance = () => {
           "Please allow location permission to continue."
         );
       },
+
       {
         enableHighAccuracy: true,
         timeout: 10000,
@@ -183,15 +183,28 @@ const StudentScanAttendance = () => {
     );
   };
 
-  // ---------------- CAPTURE PHOTO ----------------
+  // =====================================================
+  // CAPTURE PHOTO
+  // =====================================================
 
   const capturePhoto = () => {
     if (!videoRef.current || !canvasRef.current) {
+      setError("Camera is not ready.");
       return;
     }
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
+
+    if (
+      video.videoWidth === 0 ||
+      video.videoHeight === 0
+    ) {
+      setError(
+        "Camera is still starting. Please wait a moment."
+      );
+      return;
+    }
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
@@ -206,26 +219,31 @@ const StudentScanAttendance = () => {
       canvas.height
     );
 
-    const image = canvas.toDataURL("image/jpeg");
+    const image = canvas.toDataURL("image/jpeg", 0.9);
 
     setPhoto(image);
 
-    // IMPORTANT: Camera OFF after capture
     stopCamera();
   };
 
-  // ---------------- RETAKE ----------------
+  // =====================================================
+  // RETAKE PHOTO
+  // =====================================================
 
-  const retakePhoto = () => {
+  const retakePhoto = async () => {
     setPhoto(null);
     setError("");
 
-    startCamera();
+    await startCamera();
   };
 
-  // ---------------- SUBMIT ----------------
+  // =====================================================
+  // SUBMIT ATTENDANCE
+  // =====================================================
 
   const submitAttendance = () => {
+    setError("");
+
     if (!photo) {
       setError("Please capture your photo first.");
       return;
@@ -236,16 +254,26 @@ const StudentScanAttendance = () => {
       return;
     }
 
+    if (!session) {
+      setError(
+        "Attendance session is no longer available."
+      );
+      return;
+    }
+
     const attendanceRecord = {
+      id: Date.now(),
       student: "Aslin Mercy",
-      subject: session.subject,
-      faculty: session.faculty,
-      room: session.room,
+      registerNo: "21BTECH001",
+      subject: session.subject || "Unknown Subject",
+      faculty: session.faculty || "Faculty",
+      room: session.room || "Classroom",
       status: "Present",
       date: new Date().toLocaleDateString(),
       time: new Date().toLocaleTimeString(),
       latitude: location.latitude,
       longitude: location.longitude,
+      photo: photo,
     };
 
     const oldRecords = JSON.parse(
@@ -260,496 +288,1078 @@ const StudentScanAttendance = () => {
       ])
     );
 
-    // Stop camera
     stopCamera();
 
     setSubmitted(true);
   };
 
-  // ---------------- NO ACTIVE QR ----------------
+  // =====================================================
+  // NO ACTIVE SESSION
+  // =====================================================
 
   if (!session) {
     return (
-      <div className="flex min-h-screen bg-slate-50">
+      <Box
+        sx={{
+          minHeight: "100vh",
+          background: "#F8FAFF",
+        }}
+      >
+        <StudentSidebar />
 
-        {/* SIDEBAR */}
+        <Box
+          sx={{
+            marginLeft: "258px",
+            minHeight: "100vh",
+            px: { xs: 2, md: 4 },
+            py: 4,
+          }}
+        >
+          {/* PAGE TITLE */}
 
-        <aside className="w-64 border-r bg-white p-5">
-
-          <h2 className="mb-8 text-xl font-bold text-violet-600">
-            Smart Attendance
-          </h2>
-
-          <div className="space-y-2">
-
-            {menuItems.map((item) => (
-              <button
-                key={item.title}
-                onClick={() => navigate(item.path)}
-                className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left ${
-                  item.path === "/student-scan"
-                    ? "bg-violet-100 text-violet-700"
-                    : "text-slate-600 hover:bg-slate-100"
-                }`}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 4,
+            }}
+          >
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 28,
+                  fontWeight: 800,
+                  color: "#0F172A",
+                }}
               >
-                {item.icon}
-
-                <span>{item.title}</span>
-              </button>
-            ))}
-
-          </div>
-        </aside>
-
-        {/* MAIN */}
-
-        <div className="flex-1">
-
-          <header className="flex items-center justify-between border-b bg-white px-6 py-4">
-
-            <div>
-              <h1 className="text-xl font-bold">
                 Scan Attendance
-              </h1>
+              </Typography>
 
-              <p className="text-sm text-slate-400">
-                Mark your attendance
-              </p>
-            </div>
-
-          </header>
-
-          <main className="p-6">
-
-            <div className="mx-auto max-w-xl rounded-2xl bg-white p-10 text-center shadow-sm">
-
-              <QrCode
+              <Typography
                 sx={{
-                  fontSize: 70,
-                  color: "#94a3b8",
+                  fontSize: 14,
+                  color: "#94A3B8",
+                  mt: 0.5,
                 }}
-              />
+              >
+                Mark your attendance using faculty QR
+              </Typography>
+            </Box>
 
-              <h2 className="mt-4 text-xl font-bold">
-                Attendance Not Available
-              </h2>
-
-              <p className="mt-2 text-sm text-slate-400">
-                Faculty has not generated an attendance QR yet.
-              </p>
-
-            </div>
-
-          </main>
-
-        </div>
-
-      </div>
-    );
-  }
-
-  // ---------------- MAIN PAGE ----------------
-
-  return (
-    <div className="flex min-h-screen bg-slate-50">
-
-      {/* ================= SIDEBAR ================= */}
-
-      <aside className="w-64 border-r bg-white p-5">
-
-        <h2 className="mb-8 text-xl font-bold text-violet-600">
-          Smart Attendance
-        </h2>
-
-        <div className="space-y-2">
-
-          {menuItems.map((item) => (
-            <button
-              key={item.title}
-              onClick={() => navigate(item.path)}
-              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left ${
-                item.path === "/student-scan"
-                  ? "bg-violet-100 text-violet-700"
-                  : "text-slate-600 hover:bg-slate-100"
-              }`}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+              }}
             >
-              {item.icon}
-
-              <span>{item.title}</span>
-            </button>
-          ))}
-
-        </div>
-
-      </aside>
-
-      {/* ================= MAIN ================= */}
-
-      <div className="flex-1">
-
-        {/* HEADER */}
-
-        <header className="flex items-center justify-between border-b bg-white px-6 py-4">
-
-          <div className="flex items-center gap-3">
-
-            <ArrowBack
-              className="cursor-pointer"
-              onClick={() =>
-                navigate("/student-dashboard")
-              }
-            />
-
-            <div>
-
-              <h1 className="text-xl font-bold">
-                Scan Attendance
-              </h1>
-
-              <p className="text-sm text-slate-400">
-                Mark your attendance
-              </p>
-
-            </div>
-
-          </div>
-
-          <div className="flex items-center gap-5">
-
-            <div className="flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2">
-
-              <Search />
-
-              <span className="text-sm text-slate-400">
-                Search
-              </span>
-
-            </div>
-
-            <NotificationsNoneOutlined />
-
-            <div className="flex items-center gap-2">
-
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-violet-600 font-bold text-white">
-                AM
-              </div>
-
-              <span className="font-medium">
-                Aslin Mercy
-              </span>
-
-            </div>
-
-          </div>
-
-        </header>
-
-        {/* ================= CONTENT ================= */}
-
-        <main className="p-6">
-
-          {/* ================= SUBMITTED ================= */}
-
-          {submitted ? (
-
-            <div className="mx-auto max-w-xl rounded-2xl bg-white p-10 text-center shadow-sm">
-
-              <CheckCircle
+              <IconButton
                 sx={{
-                  fontSize: 75,
-                  color: "#10b981",
+                  width: 42,
+                  height: 42,
+                  background: "#FFFFFF",
+                  border: "1px solid #E2E8F0",
                 }}
-              />
+              >
+                <NotificationsNoneOutlined
+                  sx={{ color: "#64748B" }}
+                />
+              </IconButton>
 
-              <h2 className="mt-4 text-2xl font-bold">
-                Attendance Submitted
-              </h2>
+              <Avatar
+                sx={{
+                  width: 42,
+                  height: 42,
+                  background:
+                    "linear-gradient(135deg,#2563EB,#7C3AED)",
+                  fontSize: 14,
+                  fontWeight: 700,
+                }}
+              >
+                AM
+              </Avatar>
+            </Box>
+          </Box>
 
-              <p className="mt-2 text-sm text-slate-400">
-                Your attendance has been successfully recorded.
-              </p>
+          {/* EMPTY STATE */}
 
-              <div className="mt-6 rounded-xl bg-slate-50 p-5 text-left">
+          <Box
+            sx={{
+              minHeight: "65vh",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Paper
+              elevation={0}
+              sx={{
+                width: "100%",
+                maxWidth: 650,
+                border: "1px solid #E2E8F0",
+                borderRadius: "22px",
+                background: "#FFFFFF",
+                p: { xs: 4, md: 6 },
+                textAlign: "center",
+              }}
+            >
+              <Box
+                sx={{
+                  width: 90,
+                  height: 90,
+                  mx: "auto",
+                  borderRadius: "50%",
+                  background:
+                    "linear-gradient(135deg,#EEF2FF,#F5F3FF)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <QrCode
+                  sx={{
+                    fontSize: 48,
+                    color: "#6366F1",
+                  }}
+                />
+              </Box>
 
-                <p>
-                  <b>Subject:</b>{" "}
-                  {session.subject}
-                </p>
+              <Typography
+                sx={{
+                  mt: 3,
+                  fontSize: 24,
+                  fontWeight: 800,
+                  color: "#0F172A",
+                }}
+              >
+                Attendance Not Available
+              </Typography>
 
-                <p className="mt-2">
-                  <b>Faculty:</b>{" "}
-                  {session.faculty}
-                </p>
+              <Typography
+                sx={{
+                  mt: 1,
+                  fontSize: 14,
+                  color: "#94A3B8",
+                  lineHeight: 1.7,
+                }}
+              >
+                Your faculty has not started an attendance
+                session yet.
+                <br />
+                Please wait until the QR code is generated.
+              </Typography>
 
-                <p className="mt-2">
-                  <b>Room:</b>{" "}
-                  {session.room}
-                </p>
+              <Box
+                sx={{
+                  mt: 4,
+                  p: 2,
+                  borderRadius: "13px",
+                  background: "#EFF6FF",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 1,
+                }}
+              >
+                <LocationOnOutlined
+                  sx={{
+                    color: "#2563EB",
+                    fontSize: 20,
+                  }}
+                />
 
-                <p className="mt-3 text-emerald-600">
-                  ✓ Location Verified
-                </p>
+                <Typography
+                  sx={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "#2563EB",
+                  }}
+                >
+                  Stay inside your classroom and keep
+                  location enabled.
+                </Typography>
+              </Box>
 
-              </div>
-
-              <button
+              <Button
+                variant="outlined"
                 onClick={() =>
                   navigate("/student-dashboard")
                 }
-                className="mt-6 w-full rounded-xl bg-violet-600 py-3 font-semibold text-white"
+                sx={{
+                  mt: 4,
+                  px: 4,
+                  py: 1.2,
+                  borderRadius: "11px",
+                  textTransform: "none",
+                  fontWeight: 700,
+                }}
               >
                 Back to Dashboard
-              </button>
+              </Button>
+            </Paper>
+          </Box>
+        </Box>
+      </Box>
+    );
+  }
 
-            </div>
+  // =====================================================
+  // ACTIVE SESSION PAGE
+  // =====================================================
 
-          ) : (
+  return (
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "#F8FAFF",
+      }}
+    >
+      <StudentSidebar />
 
-            <div className="grid gap-6 lg:grid-cols-2">
+      <Box
+        sx={{
+          marginLeft: "258px",
+          minHeight: "100vh",
+          px: { xs: 2, md: 4 },
+          py: 4,
+        }}
+      >
+        {/* =================================================
+            TOP SECTION
+        ================================================= */}
 
-              {/* ================= CAMERA ================= */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            mb: 3,
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
+            <IconButton
+              onClick={() =>
+                navigate("/student-dashboard")
+              }
+              sx={{
+                width: 42,
+                height: 42,
+                background: "#FFFFFF",
+                border: "1px solid #E2E8F0",
+                "&:hover": {
+                  background: "#F1F5F9",
+                },
+              }}
+            >
+              <ArrowBack
+                sx={{
+                  color: "#475569",
+                }}
+              />
+            </IconButton>
 
-              <div className="rounded-2xl bg-white p-5 shadow-sm">
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 28,
+                  fontWeight: 800,
+                  color: "#0F172A",
+                }}
+              >
+                Scan Attendance
+              </Typography>
 
-                <h2 className="text-lg font-bold">
+              <Typography
+                sx={{
+                  fontSize: 14,
+                  color: "#94A3B8",
+                  mt: 0.4,
+                }}
+              >
+                Verify yourself and mark attendance
+              </Typography>
+            </Box>
+          </Box>
+
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
+            <IconButton
+              sx={{
+                width: 42,
+                height: 42,
+                background: "#FFFFFF",
+                border: "1px solid #E2E8F0",
+              }}
+            >
+              <NotificationsNoneOutlined
+                sx={{ color: "#64748B" }}
+              />
+            </IconButton>
+
+            <Avatar
+              sx={{
+                width: 42,
+                height: 42,
+                background:
+                  "linear-gradient(135deg,#2563EB,#7C3AED)",
+                fontSize: 14,
+                fontWeight: 700,
+              }}
+            >
+              AM
+            </Avatar>
+          </Box>
+        </Box>
+
+        {/* =================================================
+            ACTIVE SESSION CARD
+        ================================================= */}
+
+        <Paper
+          elevation={0}
+          sx={{
+            borderRadius: "18px",
+            p: 3,
+            mb: 3,
+            color: "#FFFFFF",
+            background:
+              "linear-gradient(135deg,#2563EB,#7C3AED)",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 2,
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                  opacity: 0.85,
+                }}
+              >
+                ACTIVE ATTENDANCE SESSION
+              </Typography>
+
+              <Typography
+                sx={{
+                  mt: 0.6,
+                  fontSize: 21,
+                  fontWeight: 800,
+                }}
+              >
+                {session.subject}
+              </Typography>
+
+              <Typography
+                sx={{
+                  mt: 0.5,
+                  fontSize: 13,
+                  opacity: 0.9,
+                }}
+              >
+                {session.faculty} • {session.room}
+              </Typography>
+            </Box>
+
+            <Chip
+              label="QR Active"
+              icon={
+                <QrCode
+                  sx={{
+                    color: "#16A34A !important",
+                  }}
+                />
+              }
+              sx={{
+                background: "#ECFDF5",
+                color: "#16A34A",
+                fontWeight: 700,
+              }}
+            />
+          </Box>
+
+          <QrCode
+            sx={{
+              position: "absolute",
+              right: 30,
+              bottom: -15,
+              fontSize: 100,
+              opacity: 0.08,
+            }}
+          />
+        </Paper>
+
+        {/* =================================================
+            SUCCESS
+        ================================================= */}
+
+        {submitted ? (
+          <Paper
+            elevation={0}
+            sx={{
+              maxWidth: 650,
+              mx: "auto",
+              mt: 5,
+              p: 5,
+              border: "1px solid #D1FAE5",
+              borderRadius: "20px",
+              background: "#FFFFFF",
+              textAlign: "center",
+            }}
+          >
+            <Box
+              sx={{
+                width: 90,
+                height: 90,
+                mx: "auto",
+                borderRadius: "50%",
+                background: "#ECFDF5",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <CheckCircle
+                sx={{
+                  fontSize: 55,
+                  color: "#10B981",
+                }}
+              />
+            </Box>
+
+            <Typography
+              sx={{
+                mt: 3,
+                fontSize: 25,
+                fontWeight: 800,
+                color: "#0F172A",
+              }}
+            >
+              Attendance Submitted
+            </Typography>
+
+            <Typography
+              sx={{
+                mt: 1,
+                fontSize: 14,
+                color: "#94A3B8",
+              }}
+            >
+              Your attendance has been successfully
+              recorded.
+            </Typography>
+
+            <Box
+              sx={{
+                mt: 4,
+                p: 3,
+                borderRadius: "14px",
+                background: "#F8FAFC",
+                textAlign: "left",
+              }}
+            >
+              <Typography sx={{ mb: 1.3 }}>
+                <b>Subject:</b> {session.subject}
+              </Typography>
+
+              <Typography sx={{ mb: 1.3 }}>
+                <b>Faculty:</b> {session.faculty}
+              </Typography>
+
+              <Typography sx={{ mb: 1.3 }}>
+                <b>Room:</b> {session.room}
+              </Typography>
+
+              <Typography
+                sx={{
+                  color: "#10B981",
+                  fontWeight: 700,
+                }}
+              >
+                ✓ Location Verified
+              </Typography>
+            </Box>
+
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={() =>
+                navigate("/student-dashboard")
+              }
+              sx={{
+                mt: 3,
+                py: 1.4,
+                borderRadius: "11px",
+                textTransform: "none",
+                fontWeight: 700,
+                background:
+                  "linear-gradient(135deg,#2563EB,#7C3AED)",
+              }}
+            >
+              Back to Dashboard
+            </Button>
+          </Paper>
+        ) : (
+          /* =================================================
+             VERIFICATION AREA
+          ================================================= */
+
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                lg: "1.25fr 0.75fr",
+              },
+              gap: 3,
+              alignItems: "start",
+            }}
+          >
+            {/* =================================================
+                CAMERA CARD
+            ================================================= */}
+
+            <Paper
+              elevation={0}
+              sx={{
+                border: "1px solid #E2E8F0",
+                borderRadius: "18px",
+                p: 3,
+                background: "#FFFFFF",
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                  mb: 0.5,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: "10px",
+                    background: "#EEF2FF",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <CameraAltOutlined
+                    sx={{
+                      color: "#6366F1",
+                    }}
+                  />
+                </Box>
+
+                <Typography
+                  sx={{
+                    fontSize: 19,
+                    fontWeight: 800,
+                    color: "#0F172A",
+                  }}
+                >
                   Student Verification
-                </h2>
+                </Typography>
+              </Box>
 
-                <p className="mt-1 text-sm text-slate-400">
-                  Keep your face inside the camera.
-                </p>
+              <Typography
+                sx={{
+                  fontSize: 13,
+                  color: "#94A3B8",
+                  mb: 3,
+                }}
+              >
+                Keep your face clearly visible inside
+                the camera.
+              </Typography>
 
-                <div className="mt-5 overflow-hidden rounded-2xl bg-black">
+              {/* CAMERA */}
 
-                  {photo ? (
-
-                    <img
-                      src={photo}
-                      alt="Student verification"
-                      className="h-[400px] w-full object-cover"
-                    />
-
-                  ) : (
-
+              <Box
+                sx={{
+                  height: {
+                    xs: 320,
+                    md: 420,
+                  },
+                  borderRadius: "16px",
+                  overflow: "hidden",
+                  background: "#0F172A",
+                  position: "relative",
+                }}
+              >
+                {photo ? (
+                  <img
+                    src={photo}
+                    alt="Student verification"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <>
                     <video
                       ref={videoRef}
                       autoPlay
                       playsInline
                       muted
-                      className="h-[400px] w-full object-cover"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
                     />
 
-                  )}
-
-                </div>
-
-                <canvas
-                  ref={canvasRef}
-                  className="hidden"
-                />
-
-                {/* CAMERA BUTTON */}
-
-                {!photo ? (
-
-                  <button
-                    onClick={capturePhoto}
-                    disabled={cameraLoading}
-                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 py-3 font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-
-                    <CameraAltOutlined />
-
-                    {cameraLoading
-                      ? "Starting Camera..."
-                      : "Capture Photo"}
-
-                  </button>
-
-                ) : (
-
-                  <button
-                    onClick={retakePhoto}
-                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
-                  >
-
-                    <Replay />
-
-                    Retake Photo
-
-                  </button>
-
-                )}
-
-              </div>
-
-              {/* ================= DETAILS ================= */}
-
-              <div className="rounded-2xl bg-white p-6 shadow-sm">
-
-                <h2 className="text-xl font-bold">
-                  Attendance Details
-                </h2>
-
-                {/* SUBJECT */}
-
-                <div className="mt-5 rounded-xl bg-slate-50 p-4">
-
-                  <p className="text-xs text-slate-400">
-                    Subject
-                  </p>
-
-                  <p className="mt-1 font-semibold">
-                    {session.subject}
-                  </p>
-
-                </div>
-
-                {/* FACULTY */}
-
-                <div className="mt-4 rounded-xl bg-slate-50 p-4">
-
-                  <p className="text-xs text-slate-400">
-                    Faculty
-                  </p>
-
-                  <p className="mt-1 font-semibold">
-                    {session.faculty}
-                  </p>
-
-                </div>
-
-                {/* ROOM */}
-
-                <div className="mt-4 rounded-xl bg-slate-50 p-4">
-
-                  <p className="text-xs text-slate-400">
-                    Room
-                  </p>
-
-                  <p className="mt-1 font-semibold">
-                    {session.room}
-                  </p>
-
-                </div>
-
-                {/* LOCATION */}
-
-                <div className="mt-4 rounded-xl bg-slate-50 p-4">
-
-                  <div className="flex items-center gap-2">
-
-                    <LocationOnOutlined
-                      className="text-emerald-500"
-                    />
-
-                    <span className="font-semibold">
-                      Location
-                    </span>
-
-                  </div>
-
-                  <p
-                    className={`mt-2 text-sm ${
-                      location
-                        ? "text-emerald-600"
-                        : "text-orange-500"
-                    }`}
-                  >
-
-                    {location
-                      ? "Location Verified ✓"
-                      : "Getting location..."}
-
-                  </p>
-
-                  {location && (
-                    <p className="mt-1 text-xs text-slate-400">
-                      GPS location detected successfully.
-                    </p>
-                  )}
-
-                </div>
-
-                {/* ERROR */}
-
-                {error && (
-
-                  <div className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">
-
-                    {error}
-
-                    {!location && (
-                      <button
-                        onClick={getLocation}
-                        className="mt-2 block font-semibold text-red-700 underline"
+                    {cameraLoading && (
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          inset: 0,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          background:
+                            "rgba(15,23,42,0.7)",
+                        }}
                       >
-                        Try Location Again
-                      </button>
+                        <Typography
+                          sx={{
+                            color: "#FFFFFF",
+                            fontWeight: 600,
+                          }}
+                        >
+                          Starting Camera...
+                        </Typography>
+                      </Box>
                     )}
-
-                  </div>
-
+                  </>
                 )}
+              </Box>
 
-                {/* STATUS */}
+              <canvas
+                ref={canvasRef}
+                style={{
+                  display: "none",
+                }}
+              />
 
-                <div className="mt-5 rounded-xl border border-dashed border-slate-300 p-4">
-
-                  <p className="text-sm font-semibold">
-                    Verification Status
-                  </p>
-
-                  <div className="mt-3 space-y-2 text-sm">
-
-                    <p>
-                      {photo
-                        ? "✓ Photo captured"
-                        : "○ Capture your photo"}
-                    </p>
-
-                    <p>
-                      {location
-                        ? "✓ Location verified"
-                        : "○ Waiting for location"}
-                    </p>
-
-                  </div>
-
-                </div>
-
-                {/* SUBMIT */}
-
-                <button
-                  onClick={submitAttendance}
-                  disabled={!photo || !location}
-                  className={`mt-5 w-full rounded-xl py-3 font-semibold transition ${
-                    photo && location
-                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                      : "cursor-not-allowed bg-slate-200 text-slate-400"
-                  }`}
+              {!photo ? (
+                <Button
+                  fullWidth
+                  variant="contained"
+                  startIcon={
+                    <CameraAltOutlined />
+                  }
+                  onClick={capturePhoto}
+                  disabled={cameraLoading}
+                  sx={{
+                    mt: 3,
+                    py: 1.4,
+                    borderRadius: "11px",
+                    textTransform: "none",
+                    fontWeight: 700,
+                    background:
+                      "linear-gradient(135deg,#2563EB,#7C3AED)",
+                  }}
                 >
+                  {cameraLoading
+                    ? "Starting Camera..."
+                    : "Capture Photo"}
+                </Button>
+              ) : (
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<Replay />}
+                  onClick={retakePhoto}
+                  sx={{
+                    mt: 3,
+                    py: 1.4,
+                    borderRadius: "11px",
+                    textTransform: "none",
+                    fontWeight: 700,
+                  }}
+                >
+                  Retake Photo
+                </Button>
+              )}
+            </Paper>
 
-                  {!photo
-                    ? "Capture Photo to Continue"
-                    : !location
-                    ? "Waiting for Location..."
-                    : "Submit Attendance"}
+            {/* =================================================
+                DETAILS CARD
+            ================================================= */}
 
-                </button>
+            <Paper
+              elevation={0}
+              sx={{
+                border: "1px solid #E2E8F0",
+                borderRadius: "18px",
+                p: 3,
+                background: "#FFFFFF",
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: 19,
+                  fontWeight: 800,
+                  color: "#0F172A",
+                }}
+              >
+                Attendance Details
+              </Typography>
 
-              </div>
+              <Typography
+                sx={{
+                  mt: 0.5,
+                  fontSize: 13,
+                  color: "#94A3B8",
+                }}
+              >
+                Verify the details before submitting.
+              </Typography>
 
-            </div>
+              {/* SUBJECT */}
 
-          )}
+              <Box
+                sx={{
+                  mt: 3,
+                  p: 2,
+                  borderRadius: "12px",
+                  background: "#F8FAFC",
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    color: "#94A3B8",
+                    letterSpacing: 0.8,
+                  }}
+                >
+                  SUBJECT
+                </Typography>
 
-        </main>
+                <Typography
+                  sx={{
+                    mt: 0.6,
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: "#0F172A",
+                  }}
+                >
+                  {session.subject}
+                </Typography>
+              </Box>
 
-      </div>
+              {/* FACULTY */}
 
-    </div>
+              <Box
+                sx={{
+                  mt: 2,
+                  p: 2,
+                  borderRadius: "12px",
+                  background: "#F8FAFC",
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    color: "#94A3B8",
+                    letterSpacing: 0.8,
+                  }}
+                >
+                  FACULTY
+                </Typography>
+
+                <Typography
+                  sx={{
+                    mt: 0.6,
+                    fontSize: 14,
+                    fontWeight: 700,
+                  }}
+                >
+                  {session.faculty}
+                </Typography>
+              </Box>
+
+              {/* ROOM */}
+
+              <Box
+                sx={{
+                  mt: 2,
+                  p: 2,
+                  borderRadius: "12px",
+                  background: "#F8FAFC",
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    color: "#94A3B8",
+                    letterSpacing: 0.8,
+                  }}
+                >
+                  CLASSROOM
+                </Typography>
+
+                <Typography
+                  sx={{
+                    mt: 0.6,
+                    fontSize: 14,
+                    fontWeight: 700,
+                  }}
+                >
+                  {session.room}
+                </Typography>
+              </Box>
+
+              <Divider sx={{ my: 2.5 }} />
+
+              {/* LOCATION */}
+
+              <Box
+                sx={{
+                  p: 2,
+                  borderRadius: "12px",
+                  background: location
+                    ? "#ECFDF5"
+                    : "#FFF7ED",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
+                >
+                  <LocationOnOutlined
+                    sx={{
+                      color: location
+                        ? "#10B981"
+                        : "#F97316",
+                    }}
+                  />
+
+                  <Typography
+                    sx={{
+                      fontSize: 14,
+                      fontWeight: 700,
+                    }}
+                  >
+                    Location Verification
+                  </Typography>
+                </Box>
+
+                <Typography
+                  sx={{
+                    mt: 1,
+                    fontSize: 12,
+                    color: location
+                      ? "#059669"
+                      : "#EA580C",
+                  }}
+                >
+                  {location
+                    ? "Location detected successfully ✓"
+                    : "Waiting for location..."}
+                </Typography>
+
+                {!location && (
+                  <Button
+                    size="small"
+                    startIcon={
+                      <RefreshOutlined />
+                    }
+                    onClick={getLocation}
+                    sx={{
+                      mt: 1,
+                      textTransform: "none",
+                      fontWeight: 700,
+                    }}
+                  >
+                    Try Again
+                  </Button>
+                )}
+              </Box>
+
+              {/* ERROR */}
+
+              {error && (
+                <Box
+                  sx={{
+                    mt: 2,
+                    p: 2,
+                    borderRadius: "12px",
+                    background: "#FEF2F2",
+                    border: "1px solid #FECACA",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: 12,
+                      color: "#DC2626",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {error}
+                  </Typography>
+
+                  {!location && (
+                    <Button
+                      size="small"
+                      onClick={getLocation}
+                      sx={{
+                        mt: 0.5,
+                        p: 0,
+                        textTransform: "none",
+                        color: "#DC2626",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Try Location Again
+                    </Button>
+                  )}
+                </Box>
+              )}
+
+              {/* VERIFICATION STATUS */}
+
+              <Box
+                sx={{
+                  mt: 2,
+                  p: 2,
+                  border: "1px dashed #CBD5E1",
+                  borderRadius: "12px",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
+                >
+                  <VerifiedOutlined
+                    sx={{
+                      fontSize: 19,
+                      color: "#6366F1",
+                    }}
+                  />
+
+                  <Typography
+                    sx={{
+                      fontSize: 13,
+                      fontWeight: 700,
+                    }}
+                  >
+                    Verification Status
+                  </Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    mt: 1.5,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 1,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: 13,
+                      color: photo
+                        ? "#16A34A"
+                        : "#64748B",
+                    }}
+                  >
+                    {photo
+                      ? "✓ Photo captured"
+                      : "○ Capture your photo"}
+                  </Typography>
+
+                  <Typography
+                    sx={{
+                      fontSize: 13,
+                      color: location
+                        ? "#16A34A"
+                        : "#64748B",
+                    }}
+                  >
+                    {location
+                      ? "✓ Location verified"
+                      : "○ Waiting for location"}
+                  </Typography>
+                </Box>
+              </Box>
+
+              {/* SUBMIT */}
+
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={submitAttendance}
+                disabled={!photo || !location}
+                sx={{
+                  mt: 3,
+                  py: 1.4,
+                  borderRadius: "11px",
+                  textTransform: "none",
+                  fontWeight: 700,
+                  background:
+                    photo && location
+                      ? "#10B981"
+                      : "#E2E8F0",
+                  color:
+                    photo && location
+                      ? "#FFFFFF"
+                      : "#94A3B8",
+                  "&:hover": {
+                    background:
+                      photo && location
+                        ? "#059669"
+                        : "#E2E8F0",
+                  },
+                }}
+              >
+                {!photo
+                  ? "Capture Photo to Continue"
+                  : !location
+                  ? "Waiting for Location..."
+                  : "Submit Attendance"}
+              </Button>
+            </Paper>
+          </Box>
+        )}
+      </Box>
+    </Box>
   );
-};
-
-export default StudentScanAttendance;
+}

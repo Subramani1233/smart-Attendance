@@ -15,38 +15,7 @@ const StudentQRScanner = () => {
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
- const menuItems = [
-    {
-      title: "Dashboard",
-      icon: <DashboardOutlined />,
-      path: "/student-dashboard",
-    },
-    {
-      title: "Attendance",
-      icon: <EventAvailableOutlined />,
-      path: "/student-attendance",
-    },
-    {
-      title: "Results",
-      icon: <AssessmentOutlined />,
-      path: "/student-results",
-    },
-    {
-      title: "Timetable",
-      icon: <CalendarMonthOutlined />,
-      path: "/student-timetable",
-    },
-     {
-  title: "Scan Attendance",
-  icon: <QrCode/>,
-  path: "/student-scan",
-},
-    {
-      title: "Settings",
-      icon: <SettingsOutlined />,
-      path: "/student-settings",
-    },
-  ];
+
   const startScanner = async () => {
     setError("");
 
